@@ -8,9 +8,9 @@ public interface CozinhaRepository {
 	
 	// Orientado a persistencia
 	
-	List<Cozinha> todas();
-	Cozinha porId(Long id);
-	Cozinha adicionar(Cozinha cozinha);
+	List<Cozinha> listar();
+	Cozinha buscar(Long id);
+	Cozinha salvar(Cozinha cozinha);
 	void remover(Cozinha cozinha);
 
 }
