@@ -3,8 +3,6 @@ package com.algaworks.algafood.api.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.algaworks.algafood.api.model.CozinhasXmlWrapper;
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.model.Cozinha;
@@ -41,12 +37,6 @@ public class CozinhaController {
 		return cozinhaRepository.listar();
 	}
 
-	// Listando em XML
-	@GetMapping(produces = MediaType.APPLICATION_XML_VALUE)
-	public CozinhasXmlWrapper listarXML() {
-		return new CozinhasXmlWrapper(cozinhaRepository.listar());
-	}
-
 	// Buscando por ID
 	@GetMapping("/{id}")
 	public ResponseEntity<Cozinha> buscar(@PathVariable Long id) {
@@ -64,19 +54,12 @@ public class CozinhaController {
 		return cozinhaRepository.salvar(cozinha);
 	}
 
-	// Adicionando XML
-	@PostMapping(produces = MediaType.APPLICATION_XML_VALUE)
-	@ResponseStatus(HttpStatus.CREATED)
-	public Cozinha adicionarXML(@RequestBody Cozinha cozinha) {
-		return cozinhaService.salvar(cozinha);
-	}
-
 	// Editando
 	@PutMapping("/{cozinhaId}")
 	public ResponseEntity<Cozinha> atualizar(@PathVariable Long cozinhaId, @RequestBody Cozinha cozinha) {
 		if (cozinhaRepository.buscar(cozinhaId) != null) {
 			cozinha.setId(cozinhaId);
-			cozinha = cozinhaRepository.salvar(cozinha);
+			cozinha = cozinhaService.salvar(cozinha);
 			return ResponseEntity.ok(cozinha);
 		}
 		return ResponseEntity.notFound().build();
