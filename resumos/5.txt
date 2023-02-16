@@ -68,6 +68,7 @@ caso contrário, uma nova linha é inserida na tabela correspondente.
 2- deleteById(ID id): exclui uma entidade do banco de dados com base no seu ID.
 
 3- findById(ID id): busca uma entidade no banco de dados com base no seu ID.
+Obs: o findById retorna um Optional<T>
 
 4- findAll(): busca todas as entidades no banco de dados e retorna uma lista com elas.
 
@@ -83,7 +84,7 @@ do JpaRepository é fornecer uma interface simples e intuitiva para realizar ope
 persistência de dados em um banco de dados usando a API JPA.
 
 
-
+5.4. Refatorando o código do projeto para usar o repositório do SDJ
 
 
 
