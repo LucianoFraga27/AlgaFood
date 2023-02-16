@@ -1,0 +1,416 @@
+Começar a trabalhar com persistencia de dados JPA e Hibernate
+
+3.1. Instalando o MySQL Server e MySQL Workbench
+
+3.2. O que é JPA e Hibernate?
+
+O que é persistencia de dados ?
+-> quer dizer que queremos preservar os dados por um tempo além da utilização do software.
+Geralmente utilizamos um banco de dados para fazer a persistencia de dados.
+
+-----------------------------------
+Código Java -> Driver JDBC -> MySQL
+-----------------------------------
+
+ORM(Object-Relational Mapping): É uma tecnica para mapeamento de classes que representam entidades para tabelas em um 
+banco de dados relacional.
+
+Tabela 		    = Classe
+Linha 		    = objeto
+Coluna 		    = Atributo
+       		    = Método
+Chave Estrangeira   = Associação
+
+Persistencia com ORM :
+------------------------------------------
+Código Java -> ORM -> Driver JDBC -> MySQL
+------------------------------------------
+
+Jpa (Java Persistence API) :
+É uma especificação JEE, uma solução ORM para persistencia de dados 
+que é padronizada para desenvolvimento de aplicações JAVA.
+Então JPA define a forma de mapeamento Objeto Relacional,
+possui uma api de consultas, e modificação de dados. JPQL.
+Na classe Java utilizaremos anotações para identificar cada objeto.
+
+JPA NÃO FUNCIONA SOZINHO.
+
+Hibernate:
+é uma implementação da especificação JPA. é o produto.
+
+JPA descreve como vai funcionar e o Hibernate implementa a solução de acordo com a especificação.
+
+Persistencia com banco de dados com JPA:
+------------------------------------------
+Código Java ->  JPA  -> Driver JDBC -> MySQL
+		 ^
+		 |
+	     Hibernate
+------------------------------------------
+
+3.3. Adicionando JPA e configurando o Data Source
+
+Criando novo projeto: ex2
+Dependencias: 
+-Spring Boot DevTools
+-Spring Configuration Processor
+-Spring Web
+-Spring Data JPA	 // Adicionando JPA
+-MySQL Driver		 
+
+spring.datasource.url=jdbc:mysql://localhost:3306/algafood?createDatabaseIfNotExist=true&serverTimezone=UTC
+spring.datasource.username=root
+spring.datasource.password=1234
+						// Crie a base de dados "alga food" se nao existir.
+// forma que o drive jdbc vai interpreta o banco de dados
+Olhar na documentação: Connector/J URL: 
+
+
+
+3.4. Mapeando entidades com JPA
+
+- Criar classes(Entidades) e depois criar tabelas no banco de dados
+
+com.algaworks.algafood	.domain.model
+
+Criar entidades: Cozinha e Restaurante
+
+@Entity 			//Indica que a Cozinha representa uma entidade no banco de dados
+@Table(name="tab_cozinha") 	// Indica o nome da tabela que a entidade está relacionada
+public class Cozinha {
+	@Id 			// Atributo que representa o identificador unico da tabela
+	private Long id; 
+
+	@Column(name="nom_cozinha") // Indica a coluna que está relacionada a variavel
+				    // Caso não tenha nada podemos fazer apenas com @Column 
+				    // Ou deixar sem anotação caso o nome da coluna seja o mesmo
+				    // que o da variavel.
+				    // Sobre @Column: Quando não definimos tamanho limite da String
+				    // o hibernate por padrão cria com 255. para definir tamanho é
+				    // @Column(name="nome",lenght=TAM)	ex:TAM=30 	
+	private String nome;
+
+	@getters e @settres;
+
+	equals() e hashCode() do id;
+} 
+
+
+3.5. Criando as tabelas do banco a partir das entidades
+
+// Gerando tabelas automaticamente
+// Não fazer isso em produção apenas em ambiente de teste
+
+em applications.properties: 
+
+spring.jpa.generate-ddl=true		// Crie as tabelas
+spring.jpa.hibernate.ddl-auto=create   	// Execute o DDL, no modo create. Reinicia a tabela e cria
+
+
+3.6. Mapeando o id da entidade para autoincremento
+
+
+// Para adicionar a funcionalidade de autoincremento devemos por
+
+	@Id 			
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+				 // Estratégia de geração de valor do Id
+				 // IDENTITY : passando essa reponsabilidade
+							 para o Banco de dados
+	private Long id; 
+
+
+3.7. Importando dados de teste com import.sql
+
+Criar arquivo SQL para gerar alguns dados para poder testar a nossa base de dados
+
+-> dentro de resource
+-> nova FILE com nome de: import.sql
+-> insert into cozinha (nome) values ('Tailandesa');
+
+3.8. Consultando objetos do banco de dados
+
+Fazendo uma consulta nos objetos do tipo Cozinha
+nova classe: CadastroCozinha pacote:algafood.jpa
+
+@Component
+class CadastroCozinha{
+
+	// Interface responsavel por gerenciar o contexto de persistencia.
+	// reponsavel pela tradução dos SQL;
+	// Com o entity manager podemos salvar, consultar etc.
+	@PersistenceContext
+	private EntityManager manager;
+	
+	// método para listar cozinhas do banco de dados
+	public List<Cozinha> listar(){
+							// Me traga tudo "from Cozinha"
+							// Pós a virgula vem o tipo da Classe: Cozinha.class
+							// Essa consulta retorna um TypedQuery
+	TypedQuery<Cozinha> query = manager.createQuery("from Cozinha",Cozinha.class);
+	return query.getResultList(); // retornando a lista
+}
+}
+
+public class ConsultaCozinhaMain {
+
+	public static void main(String[] args) {
+		ConfigurableApplicationContext applicationContext = new SpringApplicationBuilder(AlgafoodApplication.class)
+				.web(WebApplicationType.NONE)
+				.run(args);
+		
+		CadastroCozinha cadastroCozinha = applicationContext.getBean(CadastroCozinha.class);
+		
+		List<Cozinha> cozinhas = cadastroCozinha.listar();
+		
+		for (Cozinha cozinha : cozinhas) {
+			System.out.println(cozinha.getNome());
+		}
+		
+	}
+	
+}
+
+
+3.9. Adicionando um objeto no banco de dados
+
+Na classe CadastroCozinha: 
+criar novo método "adicionar"
+@Transactional  		// Essa notação ser para sempre que
+				// Estiver fazendo uma modificação
+				// no nosso banco de dados
+				// é necessario fazer uma transação
+				// transactional do org.SPRING
+public Cozinha adicionar(Cozinha cozinha){return manager.merge(cozinha);}
+
+
+
+3.10. Buscando um objeto pelo id no banco de dados
+Na classe CadastroCozinha: 
+public Cozinha buscar(Long id) {
+	return manager.find(Cozinha.class, id);	
+}
+
+
+
+3.11. Atualizando um objeto no banco de dados
+
+Para atualizar algo no banco de dados.
+devemos atritibuir o Id que ela recebe, "setId(id)";
+e depois adicionar ela novamente, isso seria uma alteração.
+
+Cozinha cozinha = new Cozinha();
+cozinha.setId(1L);
+cozinha.setNome("TROCA");
+cadastroCozinha.adicionar(cozinha);
+
+
+
+3.12. Excluindo um objeto do banco de dados
+
+Ciclo de vida das entidades JPA:
+blog.algaworks.com/tutorial-jpa/
+
+@Transactional
+	public void remover(Cozinha cozinha) {
+		cozinha = buscar(cozinha.getId());
+		manager.remove(cozinha);
+	}
+	
+
+3.13. Conhecendo o padrão Aggregate do DDD
+
+DDD(Domain-Driven Design) = abordagem de desenvolvimento de software,
+que nos ajuda a criar software de alta qualidade
+com foco no negócio.
+
+Segundo o artigo de Martin Fowloer:
+	Aggregate = é um grupo de objetos de dominio
+que podem ser tratados como uma unica unidade.
+Um exemplo pode ser um Pedido, e seus agregados
+os itens do Pedido. São objetos separados porém,
+é muito util tratar seus itens do Pedido de maneira
+única em relação ao Pedido.
+
+Um agregado vai sempre ter um Aggregate Root[Raiz do agragado(Pai)],
+qualquer referencia de fora do Aggregate deve relacionar apenas para
+o Aggregate Root.
+
+
+3.14. Conhecendo e implementando o padrão Repository
+
+Padrão adiciona uma camada de abstração de acesso a dados.
+Ele imita uma coleção, de forma que quem utiliza o repositorío
+não precisa saber o mecanismo de persistencia utilizado no repositorio.
+
+// Repositorio orientado a coleção
+
+domain.repository :
+public interface CozinhaRepository {		//Orientado a persistencia // RECOMENDADO
+	List<Cozinha> listar(); 		//todas()
+	Cozinha buscar(Long id); 		//portId()
+	Cozinha salvar(Cozinha cozinha); 	//adicionar()
+	void remover(Cozinha cozinha);
+}
+
+// Criando classe para implementar a interface
+
+Obs: classes de insfraestrutura é melhor separar do dominio
+
+.infrastrurcture.repository;
+@Component
+class CozinhaRepositoryImpl implements CozinhaRepository{
+	
+	// Copiar códigos de CadastroCozinha para dentro dessa classe
+	// Apagar CadastroCozinha e subistitua tudo por CozinhaRepository
+	// Notar com @Override pois é polimorfismo
+	
+	@PersistenceContext
+	private EntityManager manager;
+	
+	@Override
+	public java.util.List<Cozinha> listar(){
+		TypedQuery<Cozinha> query = manager.createQuery("from Cozinha",Cozinha.class);
+		return query.getResultList();
+	}
+	
+	@Override
+	public Cozinha buscar(Long id) {
+		return manager.find(Cozinha.class, id);	
+	}
+	
+	
+	@org.springframework.transaction.annotation.Transactional 
+	@Override	
+	public Cozinha salvar(Cozinha cozinha) {
+		return manager.merge(cozinha);
+	}
+
+	@Transactional
+	@Override
+	public void remover(Cozinha cozinha) {
+		cozinha = buscar(cozinha.getId());
+		manager.remove(cozinha);
+	}
+
+}
+
+
+3.15. Conhecendo e usando o Lombok
+
+Lombok: biblioteca java com foco em produtividade e redução de código border plate.
+código border plate: seções de código que devem ser incluídas em muitos lugares com pouca ou nenhuma alteração.
+
+Adicione e a dependencia Lombok
+Adicione o plugin do lombok na sua IDE
+
+projectlombok.org/download
+
+java -jar lombok.jar
+
+specify location: e coloque a IDE que voce usa  // ide.ini
+
+@Getter : Gera os Getters da classe automaticamente
+@Setter : Gera os Setters da classe automaticamente
+
+@EqualsAndHashCode : Gera o Equals e o HashCode automaticamente
+@EqualsAndHashCode(onlyExplicitlyIncluded = true) // Significa: Só quero incluir isso
+se eu deixar explicito em algum atributo.
+ex:
+	@EqualsAndHashCode.Include
+	private Long id;
+
+@Data : Gera um @ToString da classe, @EqualsAndHashCode, @Getter, @Setter 
+e @RequiredArgsConstructor 
+
+3.16. Desafio: Lombok e repositório de restaurantes
+
+3.17. Mapeando relacionamento com @ManyToOne
+
+Mapeamento de Muitos para UM.  	n -> 1
+
+Criando relacionamento entre Cozinha e Restaurante.
+
+criando coluna para representar o relacionamento em Restaurante
+
+@ManyToOne
+private Cozinha cozinha;
+
+	     ATENÇÃO:
+-> Tabelas geradas pelo Hibernate 
+utilizam o ENGINE=MyISAM, e o 
+MyISAM não suporta FOREIGN KEY
+(chave estrangeira).
+Para podermos utilizar o InnoDB,
+temos que ir no 
+applications.properties e 
+adicionar o dialeto 57 do mysql:
+
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL57Dialect
+
+# em import.sql: Vamos referenciar os restaurantes as cozinhas
+
+
+insert into cozinha (nome) values ('Australiana');
+insert into cozinha (nome) values ('Estadunidense');
+insert into cozinha (nome) values ('Brasileira');
+
+
+insert into restaurante (nome,taxa_frete,cozinha_id) values ('Outback',15.0);
+insert into restaurante (nome,taxa_frete,cozinha_id) values ('Bobs',5.0);
+insert into restaurante (nome,taxa_frete,cozinha_id) values ('Churrascaria',10.0);
+
+
+3.18. A anotação @JoinColumn
+
+@JoinColumn(name="cozinha_codigo") // Funciona da mesma maneira o Column, porem
+é utilizado em chaves primarias. 
+ex:
+
+@JoinColumn(name="cozinha_codigo")
+@ManyToOne
+private Cozinha cozinha;
+
+3.19. Propriedade nullable de @Column e @JoinColumn
+
+Adicionando propriedades na coluna:
+
+// Não aceita nulo
+
+@Column(nullable=false)
+@JoinColumn(nullable=false)
+
+3.20. Desafio: mapeando entidades ||| Fazer dia: 31/01
+
+-> Criar entidade (Forma de Pagamento, Permissao, Cidade, Estado)
+-> Fazer Mapeamento delas
+-> Criar Repository dos Aggregate Root
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

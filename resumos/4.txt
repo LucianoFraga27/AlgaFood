@@ -1,0 +1,516 @@
+4.1. O que é REST?
+
+Rest: Representational State Transfer
+	- Modelo arquitetural;
+
+Rest é um estilo arquitetural de desenvolvimento de web Services
+
+4.2. Conhecendo as constraints do REST
+
+Constrains: 
+
+- Cliente-Servidor
+	- aplicação consumidora fazendo 
+	requisições para um servidor;
+	- As aplicações cliente-servidor
+	devem ser independentes uma das
+	outras, de maneira que uma alteração
+	em uma, não afete na outra;
+
+- Statelles
+	- Sem estado;
+	- A aplicação não deve ter estado;
+	- A requisição feita ao servidor, 
+	deve conter tudo que é necessário
+	para que seja devidamente processada.
+
+- Cache 
+	- A API pode fazer cache das 
+	requisições.
+
+- Interface Uniforme 
+	- Conjunto de operações bem
+	definidas do sistema;
+	- protocolo HTTP
+
+- Sistema em camadas
+	- Camadas de segurança e etc
+
+- Código sob demanda
+	- Opicional;
+	- Pouco usada;
+	- O servidor pode enviar
+	algum código que pode ser
+	executado no cliente;
+
+4.3. Rest vs RestFul
+
+REST -> Especificação
+RESTful -> Api desenvolvida com base nas especificações Rest
+
+4.4. Desenvolvedores de REST APIs puristas e pragmáticos
+4.5. Conhecendo o protocolo HTTP
+4.6. Usando o protocolo HTTP
+4.7. Instalando e testando o Postman
+
+4.10. Modelando e requisitando um Collection Resource com GET
+
+Criando o primeiro Controlador
+
+api.controller 
+@Controller -> Indica que a classe é um controlador
+@ResponseBody -> Indica que as repostas do método desse controlador
+		  devem ir para a resposta da requisição HTTP.
+	
+@RequestMapping("/cozinhas") -> Todas as requisições 
+				'/cozinhas' vao cair nesse controlador
+
+Obs: Para subistituir a @Controller e @RequestBody
+     podemos utilizar @RestController que já
+     vem com as duas notações dentro dela
+
+class CozinhaController {
+	@Autowired
+	private CozinhaRepository cozinhaRepository;
+
+@GetMapping // Significa que são requisições do tipo GET
+	public List<Cozinha> listar(){
+		return cozinhaRepository.listar();
+	}
+
+}
+
+Faça uma requisição no postman para ver se ta funcionando seu código:
+127.0.0.1:8080/cozinhas
+localhost:8080/cozinhas
+
+
+
+4.12. Representações de recursos e content negotiation
+
+->  Representação de recurso é um codigo que descreve o estado
+atual do recurso.
+
+Um mesmo recurso pode ser visualizado de varias formas: XML, JSON...
+
+Aparece no cabeçario da requisição:
+GET /exemplos HTTP/1.1
+Accept: application/json ou xml
+
+4.13. Implementando content negotiation para retornar JSON ou XML
+
+Requisição do tipo Json :
+Key-> Accept  || Value-> application/json
+
+
+Requisição do tipo XML:
+Key-> Accept  || Value-> application/xml       status: 406 Pois 
+					       o servidor não aceita esse tipo;
+Para adicionar o surpote para XML,
+Adicione a dependencia no pom.xml:
+
+<dependency>
+	<groupId>com.fasterxml.jackson.dataformat</groupId>
+	<artifactId>jackson-dataformat-xml<artifactId>
+</dependency>				      
+		
+
+Podemos negociar o que o método retorna no controller:
+@GetMapping(produces = "application/json") 			
+(produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}) Aceitando os 2
+
+Json : MediaType.APPLICATION_JSON_VALUE
+Xml: MediaType.APPLICATION_XML_VALUE
+
+podemos colocar o produces no @RequestMapping Tambem:
+Ex:
+@RequestMapping(value="estados",produces=MediaType.APPLICATION_JSON_VALUE)
+
+
+
+4.14. Consultando Singleton Resource com GET e @PathVariable
+
+@GetMapping("/{cozinhaId}")
+	public Cozinha buscar(@PathVariable("cozinhaId") Long id) { // Se o nome da variavel for igual ao da path, não é necessario especificar
+		return cozinhaRepository.buscar(id);
+	}
+
+@PathVariable -> Pega a variavel do Url indicado
+
+exemplo: 
+127.0.0.1:8080/cozinhas/1 
+-> vai retornar a cozinha com id 1
+
+
+
+4.15. Customizando as representações XML e JSON com @JsonIgnore, @JsonProperty e @JsonRootName
+
+Qualquer classe dentro do Model significa que são classes
+de dominio, ou seja classe de Negocio que representam
+as entidades da nossa aplicação.
+
+No ponto de vista de uma Rest Api, estamos retornando 
+modelos de representação de recursos.
+
+-> Acima da entidade podemos fazer isso:
+@JsonIgnore // para ignorar a propriedade em sua representação
+@JsonProperty(value = "titulo") // Alterando o nome no Modelo de Representação de Recursos
+private String nome;
+
+
+-> Alterando representação no XML
+alterar o nome da entidade: 
+@JsonRootName("cozinhaaaa")
+@Entity
+class Cozinha {}
+
+-> Alterando as listas em XML
+
+4.16. Customizando a representação em XML com Wrapper e anotações do Jackson
+
+Quando temos uma lista de elemtentos com XML temos os termos List, item que pode ser alterados;
+
+Criar uma nova classe para representar essa lista:
+Uma classe que va representar o modelo de Cozinhas:
+
+api.model
+
+@JacksonXmlRootElement(localName = "cozinhas") // definindo nome da lista
+@Data
+public class CozinhasXmlWrapper {
+	
+	@JacksonXmlProperty(localName="cozinha")	// nome da unidade na lista
+	@JacksonXmlElementWrapper(useWrapping = false) 	// Embrulho do elemento no XML // Desabilitando embrulho(false)
+	@NonNull					// Elemento obrigatório Not null
+	private List<Cozinha> cozinhas;
+	
+}
+No controller eu crio um novo método get porem em XML:
+
+@GetMapping(produces = MediaType.APPLICATION_XML_VALUE)
+	public CozinhasXmlWrapper listarXML() {
+		return new CozinhasXmlWrapper(cozinhaRepository.listar());
+	}
+
+4.17. Conhecendo os métodos HTTP
+
+Idempotência: Algo idempontente, significa que tem capacidade de ser aplicado 
+mais de uma vez sem que o resultado da primeira aplicação se altere.
+
+Principais método HTTP:
+* Um método seguro é um método que não modifica recursos.
+
+ *GET: Usado quando existe a necessidade de ter a representação 
+de um recurso, é um método seguro;
+	 
+ *POST: Utilizado para criar novos recursos, enviamos um payload
+para o servidor criar um novo recurso, não é um método seguro;
+
+ *PUT: Utilizado geralmente como forma de ATUALIZAR um recurso,
+o PUT deve atualizar o recurso completo, ou seja, caso uma parte
+do recurso não seja informado, recebera o valor nulo ou vazio,
+método não seguro;
+
+ *PATCH: Serve para atualizar um recurso parcialmente, podemos fazer um 
+patch para atualizar um recurso paracialmente, método não seguro;
+
+ *DELETE: Tem como objetivo excluir um recurso, não seguro e idempontente;
+
+ *HEAD: É igual ao get com uma exceção, ele não retorna corpo na resposta.
+Ele é utilizado apenas para pegar o cabeçalho;
+
+ *OPTIONS: é utilizado para solicitar uma lista de métodos suportados 
+por um recurso;
+
+
+4.18. Conhecendo os códigos de status HTTP
+
+iana.org
+
+!-------------!
+! Status HTTP !
+!-------------!
+
+Principais:
+
+Nível 	200: OK: Requisição bem sucessidade.
+	201: Criado novo recurso
+	204: Sucesso, porém sem conteúdo
+Nível 	300: Redirecionamento
+	301: Movido permanentemente
+	302: Encontrado, porem foi alterado recentemente 
+Nível	400: Erro por parte do cosumidor da API | Requisição mal feita
+	401: Não atorizado
+	403: Proibido
+	404: Não encontrado
+	405: Método não permitido
+	406: Não aceito
+Nível	500: Erro interno no servidor
+	503: Serviço indisponivel
+
+
+4.19. Definindo o status da resposta HTTP com @ResponseStatus
+
+@ResponseStatus(value=HttpStatus.OK)
+@GetMapping
+Método () {}
+
+4.20. Manipulando a resposta HTTP com ResponseEntity
+
+ResponseEntity : representa uma resposta HTTP onde pode 
+ter uma instancia do objeto. "ResponseEntity<T>"
+
+Forma 1: 
+
+@GetMapping("/{id}")
+public ResponseEntity<Cozinha> buscar(@PathVariable Long id) {
+	Cozinha cozinha = cozinhaRepository.buscar(id);
+	return ResponseEntity.status(HttpStatus.OK).body(cozinha);
+		// .status() método status definindo o status da reposta do método
+		// .body() método body onde definimos o corpo da resposta
+		// .build() constroe porem sem corpo	
+}
+
+Forma 2:
+
+@GetMapping("/{id}")
+	public ResponseEntity<Cozinha> buscar(@PathVariable Long id) {
+		Cozinha cozinha = cozinhaRepository.buscar(id);
+		return ResponseEntity.ok(cozinha);
+}
+
+Forma 3:
+
+@GetMapping("/{id}")
+public ResponseEntity<Cozinha> buscar(@PathVariable Long id) {
+	Cozinha cozinha = cozinhaRepository.buscar(id);
+
+	HttpHeaders headers = new HttpHeaders();
+	headers.add(HttpHeaders.LOCATION, "http://localhost:8080/cozinhas");
+		
+	return ResponseEntity
+			.status(HttpStatus.FOUND)
+			.headers(headers)
+			.build();
+}
+
+4.21. Corrigindo o Status HTTP para resource inexistente
+
+@GetMapping("/{id}")
+	public ResponseEntity<Cozinha> buscar(@PathVariable Long id) {
+		Cozinha cozinha = cozinhaRepository.buscar(id);
+		if(cozinha != null) {
+			return ResponseEntity.ok(cozinha); // se existe retorna ok (200)
+		}
+		return ResponseEntity.notFound().build(); // caso contrario, não encontrado (404)
+	}
+
+
+
+4.22. Status HTTP para collection resource vazia: qual usar?
+Ok 200
+
+4.23. Modelando e implementando a inclusão de recursos com POST
+
+Adicionando nova cozinha:
+
+POST /cozinhas HTTP/1.1
+Content-Type: application/json
+{
+	"nome":"Brasileira"
+}
+
+@RequestBody :  Significa que esse parametro vai receber o corpo da requisição
+
+#Retornando nada
+@PostMapping
+@ResponseStatus(HttpStatus.CREATED)
+	public void adicionar(@RequestBody Cozinha cozinha) {
+		cozinhaRepository.salvar(cozinha);
+	}
+
+# retornando a cozinha
+@PostMapping
+@ResponseStatus(HttpStatus.CREATED)
+public Cozinha adicionar(@RequestBody Cozinha cozinha) {
+	return cozinhaRepository.salvar(cozinha);
+
+}
+
+4.24. Negociando o media type do payload do POST com Content-Type
+
+4.25. Modelando e implementando a atualização de recursos com PUT
+
+
+PUT /cozinhas/{idCozinha} HTTP/1.1
+Content-Type: application/json
+
+{
+	"titulo":"BR"
+}
+
+Dica: 
+
+// Copie as propriedades do item1 no item 2;
+BeanUtils.copyProperties(item1, item2);
+
+
+4.26. Modelando e implementando a exclusão de recursos com DELETE
+
+DELETE /cozinhas/{idCozinha} HTTP/1.1
+Content-Type: application/json
+
+// Excluindo
+	@DeleteMapping("/{cozinhaId}")
+	public ResponseEntity<Cozinha> remover(@PathVariable Long cozinhaId) {
+		try {
+			Cozinha cozinha = cozinhaRepository.buscar(cozinhaId);
+			if (cozinha != null) {
+				cozinhaRepository.remover(cozinha);
+				return ResponseEntity.noContent().build();
+			}
+			return ResponseEntity.notFound().build();
+		} catch (DataIntegrityViolationException e) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).build();
+		}
+	}
+
+
+4.27. Implementando a camada de domain services (e a importância da linguagem ubíqua)
+
+ Um Domain Service É uma operação sem estado que realiza uma tarefa especifica do dominio,
+ou seja, uma tarefa de negocio.
+ Quando um processo no dominio não é a responsabilidade natural de uma entidade 
+criamos um serviço de dominio.
+
+em Domain.Service:
+
+@Service // Notação é um Component Spring
+	 // Serviço Originado do DDD 
+	 // Indica que a classe é uma classe de Serviço
+public class CadastroCozinhaService{}
+
+
+4.28. Refatorando a exclusão de cozinhas para usar domain services
+4.30. Modelando e implementando a inclusão de recursos de restaurantes
+
+@Service 
+class CadastroRestauranteService{}
+
+
+4.33./34 pt1 - Analisando solução para atualização parcial de recursos com PATCH
+
+Atualização parcial de um recurso
+
+Não é necessário especificar todos os dados como no PUT,
+apenas diga o que você deseja alterar.
+
+4.33./34 pt2 - Finalizando a atualização parcial com a API de Reflections do Spring
+
+Reflections :
+É a capacidade de inspecionar objetos java em tempo de excecução.
+Quando não sabemos os nomes dos métodos e queremos fazer coisas
+mais genericas utilizamos o Reflections;
+
+API de Reflections do Spring
+
+@PatchMapping("/{restauranteId}")
+	public ResponseEntity<?> atualizarParcial(@PathVariable Long restauranteId,
+			@RequestBody Map<String, Object> campos) {
+
+		Restaurante restauranteAtual = restauranteRepositoy.buscar(restauranteId);
+
+		merge(campos, restauranteAtual);
+
+		if (restauranteAtual == null) {
+			return ResponseEntity.notFound().build();
+		}
+
+		return atualizar(restauranteId, restauranteAtual);
+	}
+
+	private void merge(Map<String, Object> dadosOrigem, Restaurante restauranteDestino) {
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		Restaurante restauranteOrigem = objectMapper.convertValue(dadosOrigem, Restaurante.class);
+
+		System.out.println(restauranteOrigem);
+
+		dadosOrigem.forEach((nomePropriedade, valorPropriedade) -> {
+
+			Field field = ReflectionUtils.findField(Restaurante.class, nomePropriedade);
+
+			field.setAccessible(true);
+
+			Object novoValor = ReflectionUtils.getField(field, restauranteOrigem);
+
+			// variavel que representa um atributo da classe Restaurante
+
+			System.out.println(nomePropriedade + "  =  " + valorPropriedade + "  =  " + novoValor);
+
+			ReflectionUtils.setField(field, restauranteDestino, novoValor);
+		});
+	}
+
+}
+
+
+4.35. Introdução ao Modelo de Maturidade de Richardson (RMM)
+
+		Níveis de maturidade do REST
+					Glória do Rest
+			Nivel 3: HATEOAS	|
+		Nivel 2: Verbos HTTP		|
+	Nivel 1: Recursos			|
+Nivel 0: POX					|
+
+
+4.36. Conhecendo o nível 0 do RMM - POX
+
+POX - Plain Old Xml / Independente do nome ele Suporta JSON
+
+Nível mais rudimentar, APIS nesse nivel não devem ser consideradas REST;
+Uma API nesse nivel utiliza o protocolo HTTP apenas como meio de transporte
+de dados; Ou seja, não utiliza os verbos e os Status de maneira correta;
+Este nível de API utiliza o modelo RPC(Remote Procedure Invocation);
+Geralmente uma API nesse nivel tem apenas uma URL, "End point Unico".
+
+
+4.37. Conhecendo o nível 1 do RMM - Recursos
+
+Fazemos requisições por URI's que identificam recursos;
+Porem os métodos HTTP não são utilizados da maneira correta;
+
+4.38. Conhecendo o nível 2 do RMM - Verbos HTTP
+
+A partir desse nivel é introduzido o uso dos verbos HTTP de maneira correta,
+além de utilizar seus códigos de status de maneira correta.
+
+4.39. Conhecendo o nível 3 do RMM - Hateoas
+
+Hateoas - Hypertext As The Engine Of Application State
+	  Hipertexto como motor de estado da aplicação
+
+O proposito é dizer o que podemos fazer após como proximo passo 
+apos uma requisição em um recurso e qual é a URI do proximo passo.
+
+Ex:
+					
+                       -> /produto/{1}
+/index  ->  /catalogo  -> /carrinho       -> /checkout
+
+
+Ex API:
+
+/Root Entry Point  ->  /produtos ->   /produtos/{id}  -> /fornecedor/{id}  ->  /fornecedores
+
+
+
+
+
+
+
+
+
+
+

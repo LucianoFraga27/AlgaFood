@@ -1,0 +1,406 @@
+Curso Especialista Spring Rest
+
+Anotações
+
+1.1/1.2/1.3 - Rest API
+1.4 - Conhecendo projeto - AlgaFood
+1.5 - Preparar ambiente
+
+2.1 - Por que aprender Spring?
+* Canivete suiço para desenvolvedores Java(Resolve diversos problemas)
+* Simplicidade
+* Maturidade
+* Modularidade / Organizado por projetos
+* Evolução constante
+* Open Source / Código aberto
+* Comunidade grande e forte
+* Popularidade / Empregabilidade
+ Quem usa Spring? 
+* Netflix, Ifood, 99, Amazon, paypal, etc.
+
+2.2 - Conhecendo Ecossistema Spring
+site: spring.io/projects
+
+2.3 - Spring VS Jakarta EE(Java EE)
+ JEE 
+* Baseado em especificações
+* Não é um ambiente aberto para inovações
+* Padronizar o que já existe
+* Portabilidade / Estabilização
+ Spring
+* Evolui muito rapido (Inovadora)
+* Migração de código entre versões / Adptações / Não tão estável.
+* Inovação ou Compatibilidade? INOVAÇÃO
+ Qual Escolher?
+* Ambos são otimas opções
+* Em momentos eles concorrem, em outros eles colaboram.
+* SpringMVC é baseado em uma especificação do JEE.
+* Utilizar SpringDataJPA é baseado em uma especificação JEE.
+* Cria um projet em JEE e escolher o SpringSecurity.
+* Em Injeção de dependencias eles concorrem.
+
+2.4 - Conhecendo o Spring Boot
+* O spring boot já configura tudo para o programador.
+* Utiliza conveções que a maiora das aplicações precisa.
+* ATENÇÃO SPRING BOOT NAO GERA CODIGO, ele apenas configura
+* Ele fornece os Starter's : Dependencias que possuem outras dependencias.
+ Spring Boot ou Spring MVC?
+* O Spring boot não substitui o SpringMVC. O SpringBoot não é um 
+Framework para apenas desenvolvimento Web. Ele apenas uma camada
+de abstração em cima do Spring. é uma solução que simplifica o 
+desenvolvimento de aplicações com spring, inclusive o SpringMVC.
+
+2.5 - Criando Projeto Spring Boot com Spring Initializr 
+* Com STS:
+- File: Create a project
+- Spring Starter Project
+- Service URL : Padrão
+- Name: nomeAplicação-api
+- Location: Padrão: workspace
+- Type: Maven
+- Java Version: Recomendada 11/17
+- Packaglang: Jar
+- language: Java  
+- group: com.nomeInstituicao
+- Artifact: nomeAplicacao-api
+- Version: padrao
+- description: ...
+- Package: com.nomeInstituicao.nomeAplicacao
+- Spring Boot version: RECOMENDADA
+* Dependencias
+- Spring Web Starter // Projeto web
+* Finish
+* Caso Ocorra algum erro:
+- Botao direito no projeto:: Maven: Update Project:: Force Update -> Ok
+- Boot DashBoard: NomeProjeto:: Start // Inicia Aplicação
+
+2.6 - Conhecendo o Maven e o pom.xml de um projeto Spring Boot
+Maven : é uma ferramenta de gerenciamento de dependencias e automação
+de build's de projetos JAVA.
+* Projeto
+src
+   test 
+       java
+           com
+	       nomeInstituicao
+		   nomeProjeto
+			nomeProjetoAplicationTest.Java
+   main
+       resources 				 	// Arquivos de Confiração / front-end
+             templates
+	     static
+	         application.properties 
+       java  						//Codigo fonte do projeto
+	   com						//
+	       nomeInstituicao				//
+		   nomeProjeto				//
+			nomeProjetoAplication.Java	//
+    pom.xml  						// Project Object Model
+    mvnw.cmd						// Arquivo para windows. Possibilita que executemos um Maven no terminal, mesmo que não tenha o Maven instalado
+    mvnw						//
+    HELP.md            					// Podemos apagar
+
+* Gerando Build:
+Projeto:: Run as: Maven Build:: Goals: package -> run
+Pasta Target: projeto.jar
+gerando pelo cmd: <pastadoprojeto> ./mvnw package
+cmd: cd target
+cmd: java -jar projeto.jar // Roda o projeto via terminal
+cmd: mvn clean 		   // limpa as pastas utilizadas
+* entendendo o : pom.xml 
+O coração do projeto
+<parent> estamos herdando configurações de outro local
+<groupId> 
+<ArtifactId> Identificado do projeto
+<version> Versao do projeto
+<relativePath/>
+<properties> propriedades
+<dependencies> dependencias do projeto
+<dependency> dependencia adicionada
+
+2.7 - Criando um controller com Spring MVC
+
+* package: com.nomeInstituicao.nomeProjeto // é onde roda a aplicação
+- crie novo package Controlador
+* package: com.nomeInstituicao.nomeProjeto.controller + class ClasseController
+// Use a anotação @Controller em todo controlador que voce criar:
+@Controller
+class ClasseController
+
+@GetMapping("/caminho")			// Requisição HTTP do tipo GET 
+					// ("/") caminho da requisicao
+@ReponseBody 				// Indica que o retorno 
+					   seja devolvido como 
+				 	   resposta da requisição 
+public TIPO funcao () {return TIPO;}
+
+
+2.8 - Restart mais rápido da aplicação com DevTools
+O devTools atualiza o seu projeto toda vez que ele é salvo
+* Projeto:: Spring: Add DevTools
+* Dependencias: DevTools
+
+2.9 - O que é injeção de dependências?
+* Crie a interface
+* Executa uma funcão padronizada
+* Ao precisar altera-la Utilize o @Override 
+* @Override: Reescrever o método // Polimorfismo
+* Instacia o atributo da Interface na classe ex: 
+private Interface interface; 
+// Por que devemos utilizar injeção de dependencias? 
+-> Baixo acoplamento  
+-> Substituição de funcionalidades
+-> Classes que fazem uso desses objetos injetados precisam apenas seguir o contrato da interface
+-> Facilita os testes unitários
+MOC -> Objeto simulado
+
+2.10 - Conhecendo o Ioc Container do Spring
+* é quem faz a Injeção de dependencias do Framework
+* Bean: é o nome dado aos elementos gerenciados pelo Container do Spring
+* Um bean é instanciado e configurado
+* Ele pode ser injetado em outros beans
+* O container de inversão de controle do Spring é representado pela interface
+chamada de application.context
+
+2.11 - Definindo Beans com @Component
+* Para Notificar o Spring que a classe é um (Component Spring) Bean Spring: @Component
+* O @Component instancia os beans
+
+* @SpringBootApplication -> Todas as classes do pacote onde está sendo utilizada
+essa notação, são legiveis para se tornar um componente gerenciado pelo spring
+desde que utilize as notações corretas.
+
+2.12 - Injetando dependencias (beans Spring)
+Injetando um bean spring dentro de outro bean spring.
+
+É importante verificar se é necessário a criação de interfaces.
+
+
+2.13 - Usando @Configuration e @Bean para definir beans
+
+-> Existem momentos que a instancia do bean será costumizada.
+-> Configurar o bean e torna-lo disponivel no container do spring.
+-> Vantagem: configurar o bean
+
+É criado uma nova classe de configuração. @Configuration 
+@Configuration é um componente Spring com objetivo de definição de beans.
+
+é criado um método para retornar o bean desejado.
+
+@Configuration
+public class NomeConfig {
+	@Bean
+	public TipoRetornoBean nome () {
+		// Instancia o bean
+		// Configura o bean
+		//
+	}
+}
+
+2.14. Conhecendo os pontos de injeção e a anotação @Autowired
+
+@Autowired 
+-> Define o ponto de injeção do construtor. Construtor / Setter / Atributo
+Construtor: Ideal, pois deixa claro quando será instanciada uma nova classe
+quais serão as dependencias da classe.
+Atributo: Utilizado por simplicidade, dificulta os testes da classe e configuração
+da classe.
+
+2.15. Dependência opcional com @Autowired
+
+-> Posso não precisar da dependencia. @Autowired(required = false)
+
+2.16. Ambiguidade de beans e injeção de lista de beans.
+ 		"required a single bean, but 2 were found"
+Aceitando multiplos beans
+Lista de beans
+@Autowired private List<Bean> beans; 
+
+2.17. Desambiguação de beans com @Primary
+-> Dentro da definição do bean 
+dar uma prioridade ao bean x: @Primary
+
+2.18. Desambiguação de beans com @Qualifier
+
+Qualificando como "nome"
+Na definição do componente e no ponto de injeção @Qualifier("nome")
+
+2.19. Desambiguação de beans com anotação customizada
+
+Criando uma enumeração: new Enum
+	NivelUrgencia(){URGENTE,NORMAL}
+Criando uma anotação: new Annotation 
+@Retention: Quanto tempo o notificador deve permanecer onde foi usado
+
+@Retention(RetentionPolicy.RUNTIME)
+@Qualifier
+public @interface Anotacao {
+	NivelUrgencia value()
+}
+
+
+Na definição do componente e no ponto de injeção do bean:
+	@TipoDoNotificador(NivelUrgencia.URGENTE)
+	@Autowired
+	private Notificador notificador;
+
+2.20. Mudando o comportamento da aplicação com Spring Profiles @Profile
+
+Spring profiles é uma forma de separar componentes da aplicação que serão
+disponibilizados em certos ambientes.
+   é legal utilizar Spring Profiles quando temos uma aplicação e queremos que 
+   ela se comporte de maneira diferente dependendo do ambiente que ela está rodando.
+
+Temos um código pra rodar no ambiente de produção @Profile("prod")
+E um mock para rodar no ambiente de desenolvimento @Profile("dev") 
+
+é necessário passar um profile pro spring, ao iniciar a aplicação
+Em application.properties:
+Adicione a propriedade
+spring.profiles.active=prod
+
+substituindo profiles: passando por parametro
+Boot dashboard -> app -> open config
+em profile digita o nome do profile definido
+
+Ex: quando quero combinar profiles
+spring.profiles.active=prod,mysql,filesystem
+
+2.21. Criando métodos de callback do ciclo de vida dos beans
+Todo os beans no spring tem um ciclo de vida(fases desde a instancia do bean até 
+onde ele deixa de existir no container).
+São 3 fases: Inicialização, Utilização do bean, Destruição do bean.
+
+Métodos de callback: São métodos que são chamados pelo Container quando
+passa por alguma fase do ciclo de vida.
+
+	1 forma: criar método de callback
+@PostConstruct // Utilize essa notação javax.annotation
+public void init(){
+// Será chamado quando o bean estar em fase de Inicialização
+// Será executada alguma coisa que voce queria que execute na Inicialização do bean
+}
+@PreDestroy // Utilize essa notação
+public void destroy(){
+// Pré-Destruição
+// Será chamada antes de Destruir o bean
+// Execute algo antes de Destruir o bean
+}
+
+	2 forma: Definindo bean pela classe de configuração(Aula 2.13)
+Na definição do bean faça: @Bean(initMethod="init",destroyMethod="destroy") no caso 
+é o nome das funções init e destroy dentro do Bean.
+
+	3 forma(NÃO RECOMENDADA): implementando interface no bean
+ClasseBean implements InitializingBean, DisposableBean
+
+2.22. Publicando e consumindo eventos customizados
+
+Existe um padrao de projeto bem conhecido chamado: Observer
+-> Serve para deixar o acoplamento mais baixo em nossas classes
+-> O spring implementa o Observer dentro do Framework, é chamado de bantHandle.
+
+Publisher: enviar o evento
+@EventListener Listener: Recebe o evento
+
+@Autowired private ApplicationEventPublisher eventPublisher;
+// avisando para o sistema q o cliente foi ativo
+No evento: eventPublisher.publishEvent(new ClienteAtivadoEvent());
+
+
+
+
+
+2.23. Configurando projetos Spring Boot com o application.properties
+
+Uma boa pratica é não colocar configurações dentro do nosso código,
+Nós temos que externalizar isso para um arquivo de configuração;
+
+Nos projetos spring boot, podemos configurar nos arquivos de propriedades do java. (properties files)
+Podemos configurar em variaveis de ambiente e tambem por linhas de comando.
+
+No projeto spring boot, vem com um arquivo, dentro de resources: "applications.properties".
+chave=valor;
+
+é o arquivo de configuração padrão do spring boot. 
+Podemos criar propriedades costumizadas e utilizar configurações ja existentes no spring.
+
+Link de listagens de algumas propriedades do spring:
+https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+
+2.24. Substituindo propriedades via linha de comando e variáveis de ambiente
+
+Pós gerar o Jar da aplicação usando o maven.
+Temos no target o Jar gerado.
+podemos rodar a aplicação que ela carregará as com as configurações definidas no applications.properties.
+Ex: server.port=8081
+
+Podemos mudar a configuração pela linha de comando:
+ex: roda: java -jar target/Jar --server.port=8080 //ele alterou a porta.
+
+Podemos definir uma variaveis de ambiente:
+export SERVER_PORT=8083 
+echo %SERVER_PORT
+roda: java -jar target/Jar
+
+2.25. Criando e acessando propriedades customizadas com @Value
+
+Define propriedade la no applications.properties
+
+@Value  -> Faz uma injeção do valor, usando uma expressão do Spring.
+@Value("${nome.propriedade}") private <T> variavel;
+
+
+2.26. Acessando propriedades com @ConfigurationProperties
+
+Quando um projeto começa a crescer, e existem muitas propriedades custumizadas
+pode começar a ficar complexo refatorar o código.
+
+Existe uma forma para organizar essa complexidade.
+
+Criar uma Classe que represente as configurações.
+
+new Class:
+@Component
+@ConfigurationProperties("prefixo da configuração") // Essa notação indica que essa classe representa um arquivo de configurações
+// Adicione o Pom.xml recomendado se o STS pedir.
+public class ConfigProperties {
+	private <T> nome;
+	
+	cria @getter e @setter da variavel
+}
+
+// FORCE Update projeto maven
+
+@Autowired private ConfigProperties properties;
+syso(properties.getNome())
+
+
+2.27. Alterando a configuração do projeto dependendo do ambiente (com Spring Profiles)
+
+Crie novos arquivos properties para cada ambiente.
+O applications.properties serve como padrão.
+
+application-dev.properties // arquivo de configuração para ambiente de desenvolvimento
+application-prod.properties // arquivo de configuração para ambiente de produção
+
+ative o profile desejado com:
+spring.profiles.active=dev/ou/prod
+
+2.28. Ativando o Spring Profile por linha de comando e variável de ambiente
+
+Gere o JAR da aplicação
+
+--spring.profiles.active=prod // Com isso ele inicia no ambiente de producao
+
+Outra forma com variaveis de ambiente:
+SPRING_PROFILES_ACTIVE=prod 
+
+
+
+
+
+
+
+
+
