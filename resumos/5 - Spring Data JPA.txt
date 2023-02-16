@@ -1,0 +1,4 @@
+5.1. Implementando consultas JPQL em repositórios
+
+JPQL -> Linguagem de consultas do JPA
+

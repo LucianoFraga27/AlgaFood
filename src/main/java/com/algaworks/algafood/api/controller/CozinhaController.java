@@ -46,7 +46,7 @@ public class CozinhaController {
 		}
 		return ResponseEntity.notFound().build();
 	}
-
+	
 	// Adicionando JSON
 	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseStatus(HttpStatus.CREATED)
