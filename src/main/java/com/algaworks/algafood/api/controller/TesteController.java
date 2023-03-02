@@ -18,13 +18,13 @@ public class TesteController {
 	@Autowired
 	private CozinhaRepository cozinhaRepository;
 	
-	/*
+	
 	// QUERY STRINGS
 	@GetMapping("/cozinhas/por-nome")
 	public List<Cozinha> consltapornome(@RequestParam String nome) {
-		return cozinhaRepository.consultarPorNome(nome);
+		return cozinhaRepository.findByNome(nome);
 		
 	}
-	*/
+	
 
 }

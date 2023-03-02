@@ -2,3 +2,84 @@
 
 JPQL -> Linguagem de consultas do JPA
 
+Repositorio utilizando JPA:
+
+@Repository 
+public interface RepositorioTipo  extends JpaRepository <T, ID> {}
+
+// onde T:Tipo 
+// ID:Tipo Da chave primaria(id)
+
+O JpaRepository é uma interface que faz parte do Spring Data JPA, 
+que é um framework que facilita a implementação do padrão de persistência
+ de dados usando a API JPA. Alguns dos principais métodos disponíveis no JpaRepository são:
+
+= save(T entity): salva ou atualiza uma entidade no banco de dados.
+ Se a entidade já existir no banco de dados, ela é atualizada; caso contrário,
+ uma nova linha é inserida na tabela correspondente.
+
+= deleteById(ID id): exclui uma entidade do banco de dados com base no seu ID.
+
+= findById(ID id): busca uma entidade no banco de dados com base no seu ID.
+
+= findAll(): busca todas as entidades no banco de dados e retorna uma lista com elas.
+
+= count(): retorna o número total de entidades no banco de dados.
+
+= existsById(ID id): verifica se uma entidade com o ID fornecido existe no banco de dados.
+
+Esses são apenas alguns dos métodos disponíveis no JpaRepository.
+ Existem muitos outros, incluindo métodos para fazer consultas mais
+ complexas e personalizadas no banco de dados, por exemplo, usando as
+ palavras-chave findBy e query. Além disso, o JpaRepository também oferece
+ suporte para paginação e ordenação dos resultados. Em geral, o objetivo principal
+ do JpaRepository é fornecer uma interface simples e intuitiva para realizar
+ operações de persistência de dados em um banco de dados usando a API JPA.
+
+5.6. Criando consultas com query methods
+
+*Método buscando pelo nome exato da propriedade:
+
+// "nome" é um atributo dentro de Cozinha por isso funcionou, 
+caso fosse outro nome não funcionaria.
+
+	List<Cozinha> nome(String nome); // Consulta Exata
+
+prefixo: "findBy" (buscarPor+nomeAtributo) 
+
+	List<Cozinha> findByNome(String nome); // Consulta Exata
+
+// ignorando o que existentre "find" e "by" poderiamos por exemplo
+					    por um nome melhor para
+					    o método.
+
+	List<Cozinha> findQUALQUERCOISAByNome(String nome); // Consulta Exata
+
+// Na ideia de encontrar UMA ou NENHUMA:
+
+	Optional<Cozinha> findByNome(String nome);
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
