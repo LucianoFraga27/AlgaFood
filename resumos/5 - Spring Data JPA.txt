@@ -147,14 +147,36 @@ OBS: % nao funciona no xml, entao temos fazer um concat exemplo:
 		</query>
 
 
+5.11. Implementando um repositório SDJ customizado
 
 
+dentro de: com.algaworks.algafood.infrastructure.repository
+criar: class RestauranteRepositoryImpl
+Impl -> sufixo serve para o jpa reconhecer.
+
+@Repository
+public class RestauranteRepositoryImpl implements RestauranteRepositoryQueries {
+
+	@PersistenceContext
+	private EntityManager manager;
+	
+	@Override
+	public List<Restaurante> find(String nome, BigDecimal taxaFreteInicial, BigDecimal taxaFreteFinal){
+		
+		var jpql = "from Restaurante where nome like :nome and taxaFrete between :taxaInicial and :taxaFinal";
+		
+		return manager.createQuery(jpql, Restaurante.class).setParameter("nome", "%"+nome+"%")
+														   .setParameter("taxaInicial", taxaFreteFinal)
+														   .setParameter("taxaFinal", taxaFreteFinal)
+														   .getResultList();
+	}
+	
+}
 
 
+Extrai para um interface: TipoRepositoryImpl
 
+Joga a interface para o domain.repository: 
 
-
-
-
-
+extends o RepositoryOriginal ao TipoRepositoryImpl.
 
