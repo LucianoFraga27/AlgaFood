@@ -180,3 +180,7 @@ Joga a interface para o domain.repository:
 
 extends o RepositoryOriginal ao TipoRepositoryImpl.
 
+
+
+5.12. Implementando uma consulta dinâmica com JPQL
+
