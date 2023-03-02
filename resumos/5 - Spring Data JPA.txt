@@ -60,26 +60,50 @@ prefixo: "findBy" (buscarPor+nomeAtributo)
 	Optional<Cozinha> findByNome(String nome);
  
 
+5.7. Usando as keywords para definir critérios de query methods
+
+Palavra Chave: 
+---------
+Containing -> Busca todos que possuem a letra tal.
+List<?> findByTxtContaining(String txt);
+
+---------
+Between -> Quero apenas o vlaor que está entre esses valores das variaveis
+List<Restaurante> findByTaxaFreteBetween (BigDecimal taxaInicial, BigDecimal taxaFinal);
 
 
+GET: http://127.0.0.1:8080/testes/restaurantes/por-taxa-frete?taxaInicial=10&taxaFinal=20
 
 
+----------
+And -> encontrando por letras e pelo Id da Cozinha relacionada a esse restaurante
+List<Restaurante> findByNomeContainingAndCozinhaId (String nome, Long cozinha);
 
 
+5.8. Conhecendo os prefixos de query methods
 
+prefixos:
+// esses servem para mesma coisa
+find / read / get / query / stream
 
+// flag pós prefixo
+read"Flag"By 
+Flags: 	First(primeiro) 
+   	TopNumero: Top2 (primeiros2)
+	Last(Ultimo)
+	exists(retorna se existe, deve ser um metodo com retorno boolean)
+	count (retorno numeral, diz quantos existe: int)
 
+Optional<Restaurante> findFirstByNomeContaining(String nome);
 
+5.9. Usando queries JPQL customizadas com @Query
 
+List<Restaurante> findByNomeContainingAndCozinhaId (String nome, Long cozinha);
+Isso, vira isso :
 
+@Query("from Restaurante where nome like %:nome% and cozinha.id = :id")
+List<Restaurante> consultarPorNome (String nome,@Param("id") Long cozinhaId);
 
-
-
-
-
-
-
-
-
+5.10. Externalizando consultas JPQL para um arquivo XML
 
 

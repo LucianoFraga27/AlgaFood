@@ -12,5 +12,5 @@ import com.algaworks.algafood.domain.model.Cozinha;
 public interface CozinhaRepository extends JpaRepository<Cozinha, Long>{
 	
 	List<Cozinha> findByNome(String nome); // Consulta Exata
-
+	List<Cozinha> findByNomeContaining(String nome); // Consulta com partes
 }
