@@ -292,7 +292,11 @@ API do JPA muito poderesa para criação de querys
 5.16. Conhecendo o uso do padrão Specifications (DDD) com SDJ
 
 
+5.19. Injetando o próprio repositório na implementação customizada e a anotação @Lazy
 
+error: circular reference // Quando algo depende de ci mesmo
+
+@Lazy -> Só instancia esse dependencia no momento em que for preciso
 
 
 

@@ -67,7 +67,7 @@ public class TesteController {
 	public List<Restaurante> restauranteComFreteGratis(String nome) {
 
 		return restauranteRepository
-				.findAll((RestauranteSpecs.comFreteGratis()).and(RestauranteSpecs.comNomeSemelhante(nome)));
+				.findComFreteGratis(nome);
 
 	}
 
