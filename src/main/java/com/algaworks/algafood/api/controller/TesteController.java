@@ -14,8 +14,7 @@ import com.algaworks.algafood.domain.model.Cozinha;
 import com.algaworks.algafood.domain.model.Restaurante;
 import com.algaworks.algafood.domain.repository.CozinhaRepository;
 import com.algaworks.algafood.domain.repository.RestauranteRepository;
-import com.algaworks.algafood.infrastructure.repository.spec.RestauranteComFreteGratisSpec;
-import com.algaworks.algafood.infrastructure.repository.spec.RestauranteComNomeSemelhanteSpec;
+import com.algaworks.algafood.infrastructure.repository.spec.RestauranteSpecs;
 
 @RestController
 @RequestMapping("/testes")
@@ -25,53 +24,51 @@ public class TesteController {
 	private CozinhaRepository cozinhaRepository;
 	@Autowired
 	private RestauranteRepository restauranteRepository;
-	
-	
+
 	// QUERY STRINGS
 	@GetMapping("/cozinhas/por-nome")
 	public List<Cozinha> consltapornome(@RequestParam String nome) {
 		return cozinhaRepository.findByNome(nome);
-		
+
 	}
-	
+
 	@GetMapping("/cozinhas/por-letra")
 	public List<Cozinha> consltaporletras(@RequestParam String nome) {
 		return cozinhaRepository.findByNomeContaining(nome);
-		
+
 	}
-	
+
 	@GetMapping("/restaurantes/por-taxa-frete")
-	public List<Restaurante> restaurantesPorTaxaFrete(@RequestParam BigDecimal taxaInicial,@RequestParam BigDecimal taxaFinal) {
+	public List<Restaurante> restaurantesPorTaxaFrete(@RequestParam BigDecimal taxaInicial,
+			@RequestParam BigDecimal taxaFinal) {
 		return restauranteRepository.findByTaxaFreteBetween(taxaInicial, taxaFinal);
-		
+
 	}
-	
+
 	@GetMapping("/restaurantes/por-nome-taxa-frete")
-	public List<Restaurante> restaurantesPorNomeEFrete( String nome, BigDecimal taxaInicial, BigDecimal taxaFinal) {
-		return restauranteRepository.find(nome,taxaInicial, taxaFinal);
-		
+	public List<Restaurante> restaurantesPorNomeEFrete(String nome, BigDecimal taxaInicial, BigDecimal taxaFinal) {
+		return restauranteRepository.find(nome, taxaInicial, taxaFinal);
+
 	}
-	
+
 	@GetMapping("/restaurantes/por-nome-cozinha")
-	public List<Restaurante> restaurantesPorNomeECozinhaId(@RequestParam String nome,@RequestParam Long cozinhaId) {
+	public List<Restaurante> restaurantesPorNomeECozinhaId(@RequestParam String nome, @RequestParam Long cozinhaId) {
 		return restauranteRepository.consultarPorNome(nome, cozinhaId);
-		
+
 	}
-	
+
 	@GetMapping("/restaurantes/por-nome-primeiro")
 	public Optional<Restaurante> restauranteNomePrimeiro(@RequestParam String nome) {
 		return restauranteRepository.findFirstByNomeContaining(nome);
-		
+
 	}
-	
+
 	@GetMapping("/restaurantes/por-frete-gratis")
 	public List<Restaurante> restauranteComFreteGratis(String nome) {
-		
-		var comFreteGratis = new RestauranteComFreteGratisSpec();
-		var comNomeSemelhante = new RestauranteComNomeSemelhanteSpec(nome);
-		
-		return restauranteRepository.findAll(comFreteGratis.and(comNomeSemelhante));
-		
+
+		return restauranteRepository
+				.findAll((RestauranteSpecs.comFreteGratis()).and(RestauranteSpecs.comNomeSemelhante(nome)));
+
 	}
 
 }
