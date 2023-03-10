@@ -297,6 +297,12 @@ API do JPA muito poderesa para criação de querys
 error: circular reference // Quando algo depende de ci mesmo
 
 @Lazy -> Só instancia esse dependencia no momento em que for preciso
+ex:
+@Autowired @Lazy private RestauranteRepository restauranteRepository;
+
+5.20. Estendendo o JpaRepository para customizar o repositório base
+
+
 
 
 

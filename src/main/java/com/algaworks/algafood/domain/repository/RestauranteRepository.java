@@ -14,7 +14,7 @@ import com.algaworks.algafood.domain.model.Restaurante;
 
 @Repository
 public interface RestauranteRepository
-		extends JpaRepository<Restaurante, Long>, RestauranteRepositoryQueries, JpaSpecificationExecutor<Restaurante> {
+		extends CustomJpaRepository<Restaurante, Long>, RestauranteRepositoryQueries, JpaSpecificationExecutor<Restaurante> {
 
 	// Quero apenas o vlaor que está entre esses valores das variaveis
 	List<Restaurante> findByTaxaFreteBetween(BigDecimal taxaInicial, BigDecimal taxaFinal);
