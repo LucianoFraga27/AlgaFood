@@ -1,0 +1,31 @@
+6.1. Mapeando relacionamento bidirecional com @OneToMany
+
+Atual: 
+
+@ManyToOne
+Restaurante -> Cozinha
+
+@OneToMany
+Restaurante <-> Cozinha
+
+
+Adicionando novo atributo na classe cozinha:
+
+// Uma cozinha tem muitos restaurante
+@JsonIgnore // Para envitar essa propriedade para que não entre num loop circular
+@OneToMany(mappedBy="cozinha")  // Querendo saber qual nome do atributo mapeado em Restaurante
+private List<Restaurante> restaurantes = new ArrayList<>();
+
+
+6.2. Mapeando relacionamento muitos-para-muitos com @ManyToMany
+
+// Muitos para Muitos 
+ex: 
+// Muitos Restaurantes possuem Muitas formas de pagamento
+
+	@ManyToMany // O JoinColumns define as colunas da chave estrangeira, na tabela intermediaria,
+	@JoinTable(name="restaurante_forma_pagamento",
+			joinColumns = @JoinColumn(name="restaurante_id"),
+			inverseJoinColumns = @JoinColumn(name="forma_pagamento_id")) // Costumizando nome da tabela do relacionamento
+	private List<FormaPagamento> formasPagamento = new ArrayList<>();
+	
