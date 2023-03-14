@@ -36,11 +36,12 @@ public class Restaurante {
 	private BigDecimal taxaFrete;
 
 	
-	@JsonIgnore
+	//@JsonIgnore
 	@JoinColumn(name="cozinha_id",nullable=false)
 	@ManyToOne
 	private Cozinha cozinha;
 	
+	@JsonIgnore
 	@ManyToMany
 	@JoinTable(name="restaurante_forma_pagamento",
 			joinColumns = @JoinColumn(name="restaurante_id"),

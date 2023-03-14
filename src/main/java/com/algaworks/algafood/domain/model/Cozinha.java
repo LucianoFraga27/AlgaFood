@@ -28,13 +28,13 @@ public class Cozinha {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
 	
-	//@JsonIgnore
+	@JsonIgnore
 	@JsonProperty(value = "nome")
 	@Column(nullable=false)
 	private String nome;
 	
 	// Uma cozinha tem muitos restaurante
-	//@JsonIgnore // Para envitar essa propriedade para que não entre num loop circular
+	@JsonIgnore // Para envitar essa propriedade para que não entre num loop circular
 	@OneToMany(mappedBy="cozinha")  // Querendo saber qual nome do atributo mapeado em Restaurante
 	private List<Restaurante> restaurantes = new ArrayList<>();
 	

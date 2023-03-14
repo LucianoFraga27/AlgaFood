@@ -32,19 +32,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class RestauranteController {
 
 	@Autowired
-	private RestauranteRepository restauranteRepositoy;
+	private RestauranteRepository restauranteRepository;
 
 	@Autowired
 	private CadastroRestauranteService restauranteService;
 
 	@GetMapping
 	public List<Restaurante> listar() {
-		return restauranteRepositoy.findAll();
+		return restauranteRepository.findAll();
 	}
 
 	@GetMapping("/{id}")
 	public ResponseEntity<Restaurante> buscar(@PathVariable Long id) {
-		Optional<Restaurante> restaurante = restauranteRepositoy.findById(id);
+		Optional<Restaurante> restaurante = restauranteRepository.findById(id);
 		if (restaurante.isPresent()) {
 			return ResponseEntity.ok(restaurante.get());
 		}
@@ -65,10 +65,12 @@ public class RestauranteController {
 	public ResponseEntity<?> atualizar(@PathVariable Long restauranteId, @RequestBody Restaurante restaurante) {
 
 		try {
-			if (restauranteRepositoy.findById(restauranteId).isPresent()) {
-				restaurante.setId(restauranteId);
-				restaurante = restauranteService.salvar(restaurante);
-				return ResponseEntity.ok(restaurante);
+			Restaurante restauranteAtual = restauranteRepository.findById(restauranteId).orElse(null);
+			
+			if (restauranteAtual != null) {
+				BeanUtils.copyProperties(restaurante, restauranteAtual, "id","formasPagamento");
+				restauranteAtual = restauranteService.salvar(restauranteAtual);
+				return ResponseEntity.ok(restauranteAtual);
 			}
 			return ResponseEntity.notFound().build();
 		} catch (EntidadeNaoEncontradaException e) {
@@ -79,7 +81,7 @@ public class RestauranteController {
 	@DeleteMapping("/{restauranteId}")
 	public ResponseEntity<?> remover(@PathVariable Long restauranteId){
 		try {
-			restauranteRepositoy.deleteById(restauranteId);	
+			restauranteRepository.deleteById(restauranteId);	
 			return ResponseEntity.noContent().build();
 		} catch (EntidadeNaoEncontradaException  e) {
 			return ResponseEntity.notFound().build();
@@ -94,7 +96,7 @@ public class RestauranteController {
 	public ResponseEntity<?> atualizarParcial(@PathVariable Long restauranteId,
 			@RequestBody Map<String, Object> campos) {
 
-		Optional<Restaurante> restauranteAtual = restauranteRepositoy.findById(restauranteId);
+		Optional<Restaurante> restauranteAtual = restauranteRepository.findById(restauranteId);
 
 		merge(campos, restauranteAtual.get());
 

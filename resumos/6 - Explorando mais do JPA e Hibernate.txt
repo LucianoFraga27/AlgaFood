@@ -29,3 +29,31 @@ ex:
 			inverseJoinColumns = @JoinColumn(name="forma_pagamento_id")) // Costumizando nome da tabela do relacionamento
 	private List<FormaPagamento> formasPagamento = new ArrayList<>();
 	
+
+6.3. Analisando o impacto do relacionamento muitos-para-muitos na REST API
+
+Quando alteramos (PUT) a Entidade Restaurante, podemos perceber que 
+perdemos dados da "forma_pagamento". 
+
+-> Em RestauranteController, em atualizar(), quando
+chamamos o "BeanUtilis.CopyProperties(restaurante, restauranteAtual, "id");"
+
+teremos que incrementar mais um item:
+
+BeanUtilis.CopyProperties(restaurante, restauranteAtual, "id", "formaPagamento");
+
+6.4. Mapeando classes incorporáveis com @Embedded e @Embeddable
+
+
+
+
+
+
+
+
+
+
+
+
+
+
