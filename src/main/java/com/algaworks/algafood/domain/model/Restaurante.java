@@ -42,6 +42,7 @@ public class Restaurante {
 	@ManyToOne
 	private Cozinha cozinha;
 	
+	@JsonIgnore 
 	@Embedded		//essa propriedade é uma classe do tipo incoporada. 
 	private Endereco endereco;
 	
