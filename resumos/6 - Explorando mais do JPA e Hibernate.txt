@@ -44,13 +44,42 @@ BeanUtilis.CopyProperties(restaurante, restauranteAtual, "id", "formaPagamento")
 
 6.4. Mapeando classes incorporáveis com @Embedded e @Embeddable
 
+criar uma nova Classe Endereço que será compartilha em Restaurante e Pedido 
+
+	@Embeddable
+Devemos incorporar o Endereço á entidade Restaurante
 
 
+@Data
+@Embeddable				// classe incoporavel, ou seja, parte de alguma entidade
+public class Endereco {
+	
+	@Column(name="endereco_cep")
+	private String cep;
+	
+	@Column(name="endereco_logradouro")
+	private String logradouro;
+	
+	@Column(name="endereco_numero")
+	private String numero;
+	
+	@Column(name="endereco_complemento")
+	private String complemento;
+	
+	@Column(name="endereco_bairro")
+	private String bairro;
+	
+	@ManyToOne
+	@JoinColumn(name="endereco_cidade_id")
+	private Cidade cidade;
+	
+}
 
 
-
-
-
+Agora na classe restaurante adicionamos o Atributo: endereco
+-> 
+@Embedded	//essa propriedade é uma classe do tipo incoporada. 
+private Endereco endereco;
 
 
 
