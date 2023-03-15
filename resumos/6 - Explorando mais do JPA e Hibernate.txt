@@ -370,14 +370,22 @@ private Cozinha cozinha;
 	private List<FormaPagamento> formasPagamento = new ArrayList<>();
 
 
+	# Gerando problema de N+1;
 
+	# Geralmente não é trocado de Lazy para Eager;
 
+6.14. Resolvendo o Problema do N+1 com fetch join na JPQL
 
+Escrever nova consulta JPQL para encontrar restaurantes, em Restaurante REPOSITORY.
 
+	@Query("from Restaurante restaurante join restaurante.cozinha")
+	List<Restaurante> findAll();
 
+	@Query("from Restaurante restaurante join restaurante.cozinha join fetch restaurante.formasPagamento")
+	List<Restaurante> findAll();
 
-
-
+	// OBS: Caso um restaurante não tenha formas de pagamento associada a ele, esse restaurante,
+	não será retornado, para resolver isso, temos que usar o LEFT JOIN FETCH, no lugar de JOIN FETCH
 
 
 

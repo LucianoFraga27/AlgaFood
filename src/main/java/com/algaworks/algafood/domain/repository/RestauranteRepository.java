@@ -16,6 +16,9 @@ import com.algaworks.algafood.domain.model.Restaurante;
 public interface RestauranteRepository
 		extends CustomJpaRepository<Restaurante, Long>, RestauranteRepositoryQueries, JpaSpecificationExecutor<Restaurante> {
 
+	@Query("from Restaurante restaurante join fetch restaurante.cozinha join fetch restaurante.formasPagamento")
+	List<Restaurante> findAll();
+	
 	// Quero apenas o vlaor que está entre esses valores das variaveis
 	List<Restaurante> findByTaxaFreteBetween(BigDecimal taxaInicial, BigDecimal taxaFinal);
 
@@ -27,5 +30,7 @@ public interface RestauranteRepository
 	List<Restaurante> consultarPorNome(String nome, @Param("id") Long cozinhaId);
 
 	Optional<Restaurante> findFirstByNomeContaining(String nome);
+	
+	
 
 }
