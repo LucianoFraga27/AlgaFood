@@ -310,7 +310,73 @@ public class Usuario {
 	
 }
 
-6.10. Entendendo o Eager Loading
+6.10. Entendendo o Eager('ansioso/antecipado') Loading
+
+Eager Load é o mecanismo pelo qual uma associação, 
+coleção ou atributo é carregado imediatamente quando o 
+objeto principal é carregado. Dessa forma todas as relações 
+de uma entidade serão carregadas no mesmo momento em que 
+esta entidade é carregada.
+
+
+Obs:
+
+Por PADRÃO: Todas a @Annotations que fazem associação 'ToOne' (ex:ManyToOne),
+usa a estratégia por padrão Eager Loading;
+
+Todas vez que uma instancia é carregada, ele carrega também as
+associações Eager Loading.
+
+6.11. Entendendo o Lazy(preguiçoso) Loading
+
+Um carregamento que só vai acontecer quando necessário.
+// Carregamento por demanda
+
+Lazy loading é um padrão de projeto de software, comumente 
+utilizado em linguagens de programação, para adiar a inicialização 
+de um objeto até o ponto em que ele é necessário. Isso pode contribuir 
+para a eficiência no funcionamento de um programa, se utilizado adequadamente.
+
+
+Por PADRÃO: Todas a @Annotations que fazem associação 'ToMany' (ex:ManyToMany),
+usa a estratégia por padrão Lazy Loading;
+
+
+6.12. Alterando a estratégia de fetching para Lazy Loading
+
+
+@JsonIgnore
+@JoinColumn(name="cozinha_id",nullable=false)
+@ManyToOne(fetch=FetchType.LAZY)
+private Cozinha cozinha;
+
+porém dessa forma da erro, então temos que não Serializar uma classe que da erro: hibernateLazyInitializer
+
+@JsonIgnoreProperties({"propriedades",...}): Ignorando propriedades especificas.
+
+//@JsonIgnore
+@JsonIgnoreProperties({"hibernateLazyInitializer"})
+@ManyToOne(fetch=FetchType.LAZY)
+@JoinColumn(name="cozinha_id",nullable=false)
+private Cozinha cozinha;
+
+6.13. Alterando a estratégia de fetching para Eager Loading
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
