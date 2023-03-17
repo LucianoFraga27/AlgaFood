@@ -1,0 +1,75 @@
+7.1. Entendendo o funcionamento de um pool de conexões
+
+Aplicação sem pool de conexões:
+
+RequesiçãoHTTP 1 -------> AplicaçãoWeb ----%--->  __
+RequesiçãoHTTP 2 -------> AplicaçãoWeb ----%---> |  |
+RequesiçãoHTTP 3 -------> AplicaçãoWeb ----%---> |BD|
+RequesiçãoHTTP 4 -------> AplicaçãoWeb ----%---> |  |
+RequesiçãoHTTP 5 -------> AplicaçãoWeb ----%---> |__|
+
+-> a cada requisição é criada uma nova conexão. (%), fim da requisição a conexão é encerrada (X)
+
+Aplicação com pool de conexões:
+
+Pool de conexões -> é um componente de software que mantem um conjunto de conexões
+com o banco de dados para reutilização numa aplicação.
+
+-> Uma mesma conexão é utilizada varias vezes na aplicação,
+ reduzindo o tempo gasto na criação de novas aplicações
+
+-> ao iniciar a aplicação, ela ja cria um determinado numero de conexões (definido na configuração)
+e armazena no POOL de conexões. De maneira que quando for preciso a conexão
+ela já estara preparada.
+
+-> Se a conexão criada não estiver sendo utilizada ela fica ociosa(IDLE).
+
+-> Quando for preciso ela realiza a operação utilizando a conexão ociosa, mudando o estado dela,
+e no fim volta para IDLE.
+
+-> Caso seja venha um numero maior de requisições do que o minimo definido na configuração, 
+ele cria mais conexões, porem se a  qauntidade requisições de ultrapassar o limite maximo
+de conexões denifido no na configuração, o processos fica na fila (esperando sua vez).
+	-> no fim todas as antigas e novas conexões ficam ociosas.
+	-> porém depois de um tempo, caso não existam novas requisições utilizando as conxeções
+	extra, ele encerra as conexeções e volta para o minimo definido.
+
+7.2. Conhecendo o Hikari: a solução padrão de pool de conexões no Spring Boot
+
+Hikari: Pool de conexões padrão do starter data jpa
+
+7.3. Configurando o pool de conexões do Hikari
+
+em application.properties:
+
+// numero diferente de conexões
+					// numero maximo de conexões, por padrão é 10
+spring.datasource.hikari.maximum-pool-size=5
+
+					// minimo de 3 conexões
+spring.datasource.hikari.minimum-idle=3
+		
+		// tempo limite de ociosidade	// tempo em milissecundos
+spring.datasource.hikari.idle-timeout=10000		// min 10 segundos
+	
+
+7.4. Schema generation em produção não é uma boa prática
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
