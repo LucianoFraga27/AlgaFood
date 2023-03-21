@@ -123,6 +123,7 @@ OBS: não é boa pratica utilizar DML como migration no flyway.
 
 7.7. Evoluindo o banco de dados com novas migrações
 
+
 #OBS: 	Não crie arquivos de migração com sua aplicação rodando;
 	Caso voce não pare a aplicação dará um erro de conflito.
 #OBS: 	Não é possivel alterar o nome do arquivo de migração nem seu conteudo.
@@ -141,17 +142,49 @@ CREATE TABLE  cidade (
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+7.8. Criando migrações complexas com remanejamento de dados
+
+Situação Problema:
+
+Meu sistema já possui uma TABELA chamada "cidade" e dentro 
+da "cidade" existe a coluna "nome_estado". Quero remover essa coluna
+e criar uma nova TABELA "estado". Onde a "TABELA "cidade" irá
+refenrenciar o estado pelo seu id('estado_id'). 
+OBS: Não posso perder dados.
+
+---------------------------------
+MIGRATION: V003__cria-tabela-estado.sql
+
+CREATE TABLE  estado (id BIGINT NOT NULL AUTO_INCREMENT,nome VARCHAR(80) NOT NULL,PRIMARY KEY(id))ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+INSERT INTO estado (nome) SELECT DISTINCT nome_estado from cidade;
 
 
+ALTER TABLE cidade ADD COLUMN estado_id BIGINT NOT NULL;
 
 
+SET sql_safe_updates=0;
+UPDATE cidade c SET c.estado_id =  (SELECT e.id FROM estado e  WHERE e.nome = c.nome_estado);
 
 
+# Altere a tabela cidade e adicione a constraint onde ela é uma chave estrangeira de estado_id, onde ela referencia a coluna id na tabela estado
+ALTER TABLE cidade ADD CONSTRAINT fk_cidade_estado FOREIGN KEY (estado_id) REFERENCES estado(id);
 
 
+ALTER TABLE cidade DROP COLUMN nome_estado;
 
+
+ALTER TABLE cidade CHANGE nome_cidade nome VARCHAR(80) NOT NULL;
+
+---------------------------------
+Fazendo Dump do banco de dados:
+
+mysqldump --host localhost --user root --password --databases algafood > dump.sql
+
+Para criar o database "algafood" a partir do dump, execute o comando:
+
+mysql --host localhost --user root --password < dump.sql
 
 
 
