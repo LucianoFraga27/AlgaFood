@@ -55,6 +55,85 @@ spring.datasource.hikari.idle-timeout=10000		// min 10 segundos
 
 7.4. Schema generation em produção não é uma boa prática
 
+				// dropa e cria nova tabela
+spring.jpa.hibernate.ddl-auto=create
+				// isso não é usual em produção
+
+	// atualiza no schema
+spring.jpa.hibernate.ddl-auto=update
+
+
+7.5. Flyway: ferramenta de versionamento de schemas de banco de dados
+
+7.6. Adicionando o Flyway no projeto e criando a primeira migração
+
+passo 1: Desabilite o schema generate do hibernate
+
+#spring.jpa.generate-ddl=true
+#spring.jpa.hibernate.ddl-auto=update
+
+passo 2: Excluir tabelas já existentes da base de dados
+
+passo 3: Nova dependencia Flyway migration
+
+Caso utilize o MySQL, adicione:
+<dependency>
+  <groupId>org.flywaydb</groupId>
+  <artifactId>flyway-mysql</artifactId>
+</dependency>
+
+passo 4: Dentro da pasta : src/main/resources
+
+-> nova pasta : db/migration
+
+passo 5: primeiro script de migração
+
+
+Todo script incremental é uma migration
+
+CREATE TABLE cozinha (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    nome VARCHAR(60) NOT NULL,
+    PRIMARY KEY(id)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+passo 6: defindo nome do arquivo dentro de: src/main/resources/db/migration
+
+V numero de versão __(dois underline) DESCRIÇÃO .sql
+
+ex1: Zeros
+V001__tabela-cozinha.sql
+
+ex2: Ponto
+V1.1__tabela-cozinha.sql
+
+ex3: Underline
+V1_2__tabela-cozinha.sql
+
+ex4: Data
+V2023032100130__tabela-cozinha.sql
+
+passo 7: adicione o script de migração dentro do arquivo criado 
+
+passo 8: repare que foi criado um 'flyway_schema_history'
+	-> é uma tabela de controle, onde ele vai gerencia as migrações.
+	
+OBS: não é boa pratica utilizar DML como migration no flyway.
+
+
+7.7. Evoluindo o banco de dados com novas migrações
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

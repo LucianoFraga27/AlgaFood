@@ -32,6 +32,11 @@ public class Cozinha {
 	@Column(nullable=false)
 	private String nome;
 	
+	/*
+	@Column(name="observacao",nullable = false)
+	private String descricao;
+	*/
+	
 	// Uma cozinha tem muitos restaurante
 	@JsonIgnore // Para envitar essa propriedade para que não entre num loop circular
 	@OneToMany(mappedBy="cozinha")  // Querendo saber qual nome do atributo mapeado em Restaurante
