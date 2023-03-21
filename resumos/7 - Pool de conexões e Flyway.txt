@@ -123,6 +123,32 @@ OBS: não é boa pratica utilizar DML como migration no flyway.
 
 7.7. Evoluindo o banco de dados com novas migrações
 
+#OBS: 	Não crie arquivos de migração com sua aplicação rodando;
+	Caso voce não pare a aplicação dará um erro de conflito.
+#OBS: 	Não é possivel alterar o nome do arquivo de migração nem seu conteudo.
+
+
+Criando nova migração:
+
+V002__cria-tabela-cozinha.sql
+
+CREATE TABLE  cidade (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    nome_cidade VARCHAR(80) NOT NULL,
+    nome_estado VARCHAR(80) NOT NULL,
+    
+    PRIMARY KEY(id)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+
+
+
+
+
+
+
+
 
 
 
