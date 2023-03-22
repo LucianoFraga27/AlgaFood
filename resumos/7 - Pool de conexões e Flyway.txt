@@ -187,11 +187,17 @@ Para criar o database "algafood" a partir do dump, execute o comando:
 mysql --host localhost --user root --password < dump.sql
 
 
+7.9. Criando migração a partir de DDL gerado por schema generation
 
+em app.properties:
 
+spring.jpa.properties.
 
+spring.jpa.properties.javax.persistence.schema-generation.scripts.action=create
+spring.jpa.properties.javax.persistence.schema-generation.scripts.create-target=src/main/resources
 
-
+OBS: Comente ou remova essas duas propriedades logo após a criação do DDL.
+Só precisamos disso para criar o arquivo apenas uma vez.
 
 
 
