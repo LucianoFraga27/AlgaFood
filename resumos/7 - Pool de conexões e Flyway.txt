@@ -308,12 +308,35 @@ novo problema: after migrate que será executado em todos os ambientes
 
 db/testdata/aftermigration.sql
 
+7.11 - Corrigindo migrações que falham
+
+V005__cria-tabela-errada.sql
+
+create table teste (
+	id bigint not null auto_increment
+	primary key (id)
+) engine=InnoDB charset=utf8;
 
 
+Corrigindo :
+
+repara no historico da tabela.
+
+flyway_schema_history => deleta a linha da versao que ta com erro
 
 
+outra forma dentro da pasta do projeto:
+
+./mvnw flyway:repair -Dflyway.configFiles=src/main/resources/flyway.properties
+
+novo arquivo
+resources/flyway.properties 
+flyway.url= url da database
+flyway.user=root
+flyway.password= 
 
 
+7.12. Desafio: Criando migrações e mapeando as entidades Pedido e ItemPedido
 
 
 
