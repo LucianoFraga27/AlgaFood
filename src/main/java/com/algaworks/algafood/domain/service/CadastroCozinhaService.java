@@ -27,7 +27,6 @@ public class CadastroCozinhaService {
 			cozinhaRepository.deleteById(id);
 			
 		} catch(EmptyResultDataAccessException e) {
-			//throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Cozinha de código '%d' não foi encontrada", id));
 			
 			throw new EntidadeNaoEncontradaException(String.format("Cozinha de código '%d' não foi encontrada", id));
 			
