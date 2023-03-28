@@ -25,31 +25,25 @@ import com.algaworks.algafood.domain.service.CadastroCidadeService;
 @RestController
 @RequestMapping("/cidades")
 public class CidadeController {
-	
+
 	@Autowired
 	CidadeRepository cidadeRepository;
-	
-	@Autowired 
+
+	@Autowired
 	CadastroCidadeService cidadeService;
-	
-	
+
 	@GetMapping
-	public List<Cidade> listar(){
+	public List<Cidade> listar() {
 		return cidadeRepository.findAll();
 	}
-	
-	
-	@GetMapping("/{id}")
-	public ResponseEntity<Cidade> buscar(@PathVariable Long id){
-		Optional<Cidade> cidade = cidadeRepository.findById(id);
-		if(cidade.isPresent()) {
-			return ResponseEntity.ok(cidade.get());
-		}
-		return ResponseEntity.notFound().build();
+
+	@GetMapping("/{cidadeId}")
+	public Cidade  buscar(@PathVariable Long cidadeId) {
+		return cidadeService.buscarOuFalhar(cidadeId);
 	}
-	
+
 	@PostMapping
-	public ResponseEntity<?> adicionar(@RequestBody Cidade cidade){
+	public ResponseEntity<?> adicionar(@RequestBody Cidade cidade) {
 		try {
 			cidade = cidadeService.salvar(cidade);
 			return ResponseEntity.status(HttpStatus.CREATED).body(cidade);
@@ -57,29 +51,22 @@ public class CidadeController {
 			return ResponseEntity.badRequest().body(e.getMessage());
 		}
 	}
-	
+
 	@PutMapping("/{cidadeId}")
-	public ResponseEntity<Cidade> atualizar(@PathVariable Long cidadeId, @RequestBody Cidade cidade){
-		if(cidadeRepository.findById(cidadeId).isPresent()) {
-			cidade.setId(cidadeId);
-			cidade = cidadeService.salvar(cidade);
-			return ResponseEntity.ok(cidade);
-		}
-		return ResponseEntity.notFound().build();
+	public Cidade atualizar(@PathVariable Long cidadeId, @RequestBody Cidade cidade) {
+
+		Cidade cidadeAtual = cidadeService.buscarOuFalhar(cidadeId);
+
+		BeanUtils.copyProperties(cidade, cidadeAtual, "id");
+
+		return cidadeService.salvar(cidadeAtual);
+
 	}
-	
+
 	@DeleteMapping("/{cidadeId}")
-	public ResponseEntity<?> remover(@PathVariable Long cidadeId){
-		try {
-			cidadeService.excluir(cidadeId);	
-			return ResponseEntity.noContent().build();
-		} catch (EntidadeNaoEncontradaException  e) {
-			return ResponseEntity.notFound().build();
-		} catch (EntidadeEmUsoException   e) {
-			return ResponseEntity.status(HttpStatus.CONFLICT)
-					.body(e.getMessage());
-		}
+	public void remover(@PathVariable Long cidadeId) {
+		cidadeService.excluir(cidadeId);
+
 	}
-	
-	
+
 }
