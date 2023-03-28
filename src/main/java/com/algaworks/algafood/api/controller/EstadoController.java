@@ -31,23 +31,17 @@ public class EstadoController {
 	@Autowired
 	private EstadoRepository estadoRepository;
 
-    @Autowired
+	@Autowired
 	private CadastroEstadoService estadoService;
-	
+
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<Estado> listar() {
 		return estadoRepository.findAll();
 	}
 
 	@GetMapping("/{estadoId}")
-	public ResponseEntity<Estado> buscar(@PathVariable Long estadoId) {
-		Optional<Estado> estado = estadoRepository.findById(estadoId);
-		
-		if (estado.isPresent()) {
-			return ResponseEntity.ok(estado.get());
-		}
-		
-		return ResponseEntity.notFound().build();
+	public Estado buscar(@PathVariable Long estadoId) {
+		return estadoService.buscarOuFalhar(estadoId);
 	}
 
 	@PostMapping
@@ -55,37 +49,18 @@ public class EstadoController {
 	public Estado adicionar(@RequestBody Estado estado) {
 		return estadoService.salvar(estado);
 	}
-    
 
 	@PutMapping("/{estadoId}")
-	public ResponseEntity<Estado> atualizar(@PathVariable Long estadoId,
-			@RequestBody Estado estado) {
-		
-		if (estadoRepository.findById(estadoId).isPresent()) {
-			
-			estado.setId(estadoId);
-			estado = estadoService.salvar(estado);
-			return ResponseEntity.ok(estado);
-		}
-		
-		return ResponseEntity.notFound().build();
+	public Estado atualizar(@PathVariable Long estadoId, @RequestBody Estado estado) {
+
+		Estado estadoAtual = estadoService.buscarOuFalhar(estadoId);
+		BeanUtils.copyProperties(estado, estadoAtual, "id");
+		return estadoService.salvar(estadoAtual);
 	}
 
-	
-	 @DeleteMapping("/{estadoId}")
-		public ResponseEntity<?> remover(@PathVariable Long estadoId) {
-			try {
-				estadoService.excluir(estadoId);	
-				return ResponseEntity.noContent().build();
-				
-			} catch (EntidadeNaoEncontradaException e) {
-				return ResponseEntity.notFound().build();
-				
-			} catch (EntidadeEmUsoException e) {
-				return ResponseEntity.status(HttpStatus.CONFLICT)
-						.body(e.getMessage());
-			}
-		}
-	    
-	
+	@DeleteMapping("/{estadoId}")
+	public void remover(@PathVariable Long estadoId) {
+		estadoService.excluir(estadoId);
+	}
+
 }

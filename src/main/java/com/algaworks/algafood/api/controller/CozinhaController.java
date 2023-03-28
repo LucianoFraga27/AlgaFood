@@ -3,6 +3,7 @@ package com.algaworks.algafood.api.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -41,13 +42,10 @@ public class CozinhaController {
 	}
 
 	// Buscando por ID
-	@GetMapping("/{id}")
-	public ResponseEntity<Cozinha> buscar(@PathVariable Long id) {
-		Optional<Cozinha> cozinha = cozinhaRepository.findById(id);
-		if (cozinha.isPresent()) {
-			return ResponseEntity.ok(cozinha.get());
-		}
-		return ResponseEntity.notFound().build();
+	@GetMapping("/{cozinhaId}")
+	public Cozinha buscar(@PathVariable Long cozinhaId) {
+		return cozinhaService.buscarOuFalhar(cozinhaId);
+
 	}
 
 	// Adicionando JSON
@@ -59,33 +57,18 @@ public class CozinhaController {
 
 	// Editando
 	@PutMapping("/{cozinhaId}")
-	public ResponseEntity<Cozinha> atualizar(@PathVariable Long cozinhaId, @RequestBody Cozinha cozinha) {
-		if (cozinhaRepository.findById(cozinhaId).isPresent()) {
-			cozinha.setId(cozinhaId);
-			cozinha = cozinhaService.salvar(cozinha);
-			return ResponseEntity.ok(cozinha);
-		}
-		return ResponseEntity.notFound().build();
+	public Cozinha atualizar(@PathVariable Long cozinhaId, @RequestBody Cozinha cozinha) {
+
+		Cozinha cozinhaAtual = cozinhaService.buscarOuFalhar(cozinhaId);
+		BeanUtils.copyProperties(cozinha, cozinhaAtual, "id");
+		return cozinhaService.salvar(cozinhaAtual);
+
 	}
 
 	// Excluindo
-	/*
-	 * @DeleteMapping("/{cozinhaId}") public ResponseEntity<Cozinha>
-	 * remover(@PathVariable Long cozinhaId) { try {
-	 * cozinhaService.excluir(cozinhaId); return ResponseEntity.noContent().build();
-	 * 
-	 * //} catch (EntidadeNaoEncontradaException e) { //return
-	 * ResponseEntity.notFound().build();
-	 * 
-	 * } catch (EntidadeEmUsoException e) { return
-	 * ResponseEntity.status(HttpStatus.CONFLICT).build(); } }
-	 */
-
 	@DeleteMapping("/{cozinhaId}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void remover(@PathVariable Long cozinhaId) {
-
 		cozinhaService.excluir(cozinhaId);
-
 	}
 }

@@ -100,9 +100,56 @@ Controller:
 -> quem lança a exception consegue costumizar o código HTTP
 
 
+8.5. Simplificando o código com o uso de @ResponseStatus em exceptions
+
+Novo Controller:
 
 
+	// Listando em JSON
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	public List<Cozinha> listar() {
+		return cozinhaRepository.findAll();
+	}
 
+	// Buscando por ID
+	@GetMapping("/{cozinhaId}")
+	public Cozinha buscar(@PathVariable Long cozinhaId) {
+		return cozinhaService.buscarOuFalhar(cozinhaId);
+
+	}
+
+	// Adicionando JSON
+	@PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseStatus(HttpStatus.CREATED)
+	public Cozinha adicionar(@RequestBody Cozinha cozinha) {
+		return cozinhaRepository.save(cozinha);
+	}
+
+	// Editando
+	@PutMapping("/{cozinhaId}")
+	public Cozinha atualizar(@PathVariable Long cozinhaId, @RequestBody Cozinha cozinha) {
+
+		Cozinha cozinhaAtual = cozinhaService.buscarOuFalhar(cozinhaId);
+		BeanUtils.copyProperties(cozinha, cozinhaAtual, "id");
+		return cozinhaService.salvar(cozinhaAtual);
+
+	}
+
+	// Excluindo
+	@DeleteMapping("/{cozinhaId}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void remover(@PathVariable Long cozinhaId) {
+		cozinhaService.excluir(cozinhaId);
+	}
+}
+
+
+Novo método em CadastroCozinhaService:
+
+public Cozinha buscarOuFalhar(Long cozinhaId) {
+		return cozinhaRepository.findById(cozinhaId).orElseThrow(() -> new EntidadeNaoEncontradaException(
+				String.format(MSG_COZINHA_NAO_ENCONTRADA, cozinhaId)));
+	}
 
 
 
