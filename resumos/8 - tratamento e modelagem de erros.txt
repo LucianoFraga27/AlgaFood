@@ -246,10 +246,42 @@ Controller:
 	}
 
 
+Resposta do erro:
+{
+	"dataHora": "2023-03-29T16:32:38.5615392",
+	"mensagem": "Não existe um cadastro de estado com código 15"
+}
 
 
+8.13. Tratando exceções globais com @ExceptionHandler e @ControllerAdvice
+
+-> Da maneira que estamos fazendo cada controllador deveria ter um ExceptionHandler.
+-> Vamos generalizar isso, para que não exista duplicação de código.
+
+-> ExceptionHandler GLOBAL;
 
 
+Criando a classe problema dentro de: api.exceptionhandler.ApiExceptionHandler
+
+@ControllerAdvice -> Essa notação diz que dentro deste componente
+		     nós podemos adicionar exceptions handler
+		     que as exceções de todos os controladores 
+		     de nosso projeto, serão tratadas por aqui.
+
+@ControllerAdvice
+class ApiExceptionHandler {
+
+@ExceptionHandler({ EntidadeNaoEncontradaException.class })
+	public ResponseEntity<?> tratarEstadoNaoEncontradoException(EntidadeNaoEncontradaException e) {
+
+		Problema problema = Problema.builder().dataHora(LocalDateTime.now()).mensagem(e.getMessage()).build();
+
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problema);
+
+	}
+
+
+}
 
 
 
