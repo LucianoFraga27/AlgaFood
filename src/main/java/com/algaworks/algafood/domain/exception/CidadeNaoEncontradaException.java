@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 
 @ResponseStatus(value = HttpStatus.NOT_FOUND)
-public class CidadeNaoEncontradaException extends NegocioException {
+public class CidadeNaoEncontradaException extends EntidadeNaoEncontradaException {
 	private static final String MSG_CIDADE_NAO_ENCONTRADA = "Não existe um cadastro de cidade com código %d";
 	private static final long serialVersionUID = 1L;
 

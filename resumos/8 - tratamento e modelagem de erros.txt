@@ -201,10 +201,49 @@ public class EstadoNaoEncontradoException extends EntidadeNaoEncontradaException
 }
 
 
+8.12. Tratando exceções em nível de controlador com @ExceptionHandler
+
+Da maneira das aulas anteriores não é possivel costumizar o Json de erro.
+
+Criando a classe problema dentro de: api.exceptionhandler.Problema
+
+
+@Getter
+@Builder
+public class Problema {
+
+	private LocalDateTime dataHora;
+	private String mensagem;
+	
+}
 
 
 
 
+Controller:
+
+@DeleteMapping("/{cidadeId}")
+	public void remover(@PathVariable Long cidadeId) {
+		cidadeService.excluir(cidadeId);
+
+	}
+
+	@ExceptionHandler({ EntidadeNaoEncontradaException.class })
+	public ResponseEntity<?> tratarEstadoNaoEncontradoException(EntidadeNaoEncontradaException e) {
+
+		Problema problema = Problema.builder().dataHora(LocalDateTime.now()).mensagem(e.getMessage()).build();
+
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problema);
+
+	}
+
+	@ExceptionHandler({ NegocioException.class })
+	public ResponseEntity<?> tratarNegocioException(NegocioException e) {
+		
+		Problema problema = Problema.builder().dataHora(LocalDateTime.now()).mensagem(e.getMessage()).build();
+		
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problema);
+	}
 
 
 
