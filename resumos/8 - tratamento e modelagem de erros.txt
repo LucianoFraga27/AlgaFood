@@ -159,10 +159,46 @@ public Cozinha buscarOuFalhar(Long cozinhaId) {
 o código do http retorna 404. vamos resolver esse problema.
 
 
+@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+public class NegocioException extends RuntimeException {
+
+	private static final long serialVersionUID = 1L;
+
+	public NegocioException(String mensagem) {
+		super(mensagem);
+	}
+}
+
+Aplicação:
+
+@PostMapping
+	public Restaurante adicionar(@RequestBody Restaurante restaurante) {
+		try {
+			return restauranteService.salvar(restaurante);
+		} catch (EntidadeNaoEncontradaException e) {
+			throw new NegocioException(e.getMessage());
+		}
+
+	}
 
 
+8.10. Afinando a granularidade e definindo a hierarquia das exceptions de negócios
 
+Exception mais específica
 
+public class EstadoNaoEncontradoException extends EntidadeNaoEncontradaException {
+	
+	private static final String MSG_ESTADO_NAO_ENCONTRADO = "Não existe um cadastro de estado com código %d";
+	private static final long serialVersionUID = 1L;
+
+	public EstadoNaoEncontradoException(String mensagem) {
+		super(mensagem);
+	}
+	
+	public EstadoNaoEncontradoException (Long estadoId) {
+		this(String.format(MSG_ESTADO_NAO_ENCONTRADO, estadoId));
+	}
+}
 
 
 
