@@ -153,7 +153,41 @@ public Cozinha buscarOuFalhar(Long cozinhaId) {
 
 
 
+8.8. Criando a exception NegocioException
 
+é notavel que a qual tentar criar uma cozinha num estado não existente
+o código do http retorna 404. vamos resolver esse problema.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
 
 
 
