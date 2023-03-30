@@ -298,6 +298,9 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {}
 
 por padrão o ResponseEntityExceptionHandler  não retorna resposta em seu corpo.
 
+/*
+código quebrou dia 30 março, 2023. Testando novo projeto 
+*/
 
 8.16. Customizando o corpo da resposta padrão de ResponseEntityExceptionHandler
 
