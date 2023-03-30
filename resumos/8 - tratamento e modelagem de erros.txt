@@ -415,8 +415,30 @@ private Problem.ProblemBuilder createProblemBuilder(HttpStatus status, ProblemTy
 
 8.20. Customizando exception handlers de ResponseEntityExceptionHandler
 
+Requisição com erro:
 
+{
+	"nome": "tradicao mineira",
+	"taxaFrete": 13.00,
+	"cozinha": {
+		"id":"2",
+	}
+}
 
+Código para alterar corpo do erro:
+
+@Override
+	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
+			HttpHeaders headers, HttpStatus status, WebRequest request) {
+			
+		ProblemType problemType = ProblemType.MESANGEM_INCOMPREENSIVEL;
+		
+		String detail = "O corpo da requisição está inválido. Verifique erro de sintaxe.";
+		
+		Problem problem = createProblemBuilder(status, problemType, detail).build();
+		
+		return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+	}
 
 
 
