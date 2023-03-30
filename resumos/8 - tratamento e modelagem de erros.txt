@@ -303,12 +303,114 @@ código quebrou dia 30 março, 2023. Testando novo projeto
 */
 
 8.16. Customizando o corpo da resposta padrão de ResponseEntityExceptionHandler
+@Override
+	protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers,
+			HttpStatus status, WebRequest request) {
+
+		if (body == null) {
+			body = Problema.builder().dataHora(LocalDateTime.now()).mensagem(status.getReasonPhrase()).build();
+		} else if (body instanceof String) {
+			body = Problema.builder().dataHora(LocalDateTime.now()).mensagem((String) body).build();
+		}
+
+		return super.handleExceptionInternal(ex, body, headers, status, request);
+	}
+
+@ExceptionHandler({ NegocioException.class })
+	public ResponseEntity<?> tratarNegocioException(WebRequest request, NegocioException ex) {
+
+		return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+
+	}
 
 
+8.17. Conhecendo a RFC 7807 (Problem Details for HTTP APIs)
+
+problem details for http Apis (rfc 7807)
+
+existem especificações para tentar padronizar o corpo do erro:
+
+jsonapi, vnd.error, problem detail for http apis.
+
+{
+"status":400,
+"type": "https://algafood.com.br/recurso-em-uso",  // URI que identifica o tipo do problema e explica como resolver o problema.
+"title": "Recurso em uso",
+"detail": "Não foi possivel excluir a cozinha de código 8, pois ela está em uso",
+"instance": "/cozinhas/8/erros/98204983"	   // Opicional // Podemos informar uma URI que identifica a correncia exata.
+
+// podemos adicionar novas propriedades:
+
+"timestamp":"2019-09-28T00:36:18"
+"cozinha":8
+
+}
+
+# podemos expor detalhes internos do erro, como a stacktrace?
+-> poder podemos, porém não é recomendado expor detalhes internos
+numa api publica. Podemos acabar expondo dados privados.
+
+# todas as respostas com erros precisam ter um corpo descrevendo
+o problema?
+-> Não necessáriamente, alguns erros são muito bem definidos.
+Mesmo assim se possivel, retornar um corpo simples.
+
+{
+"status":415,
+"title": "Unsupported Media Type",
+}
 
 
+Beneficios: 
+
+-> Um formato unico para descrever o erros na API.
+-> Facilita a manutenção e construção da API.
 
 
+8.18. Padronizando o formato de problemas no corpo de respostas com a RFC 7807
+# CRIANDO ENUM para definir o tipo do problema
+
+@Getter
+public enum ProblemType {
+	
+	ENTIDADE_NAO_ENCONTRADA("/entidade-nao-encontrada", "Entidade não encontrada");
+	
+	private String title;
+	private String uri;
+	
+	ProblemType(String path, String title){
+		this.uri="https://algafood.com.br" + path;
+		this.title = title;
+	}
+}
+
+# Criando método para facilitar criar a representação do problema
+
+private Problem.ProblemBuilder createProblemBuilder(HttpStatus status, ProblemType problemType, String detail) {
+			return Problem
+				.builder()
+				.status(status.value())
+				.type(problemType.getUri())
+				.title(problemType.getTitle())
+				.detail(detail);
+	}
+
+
+# Na classe ApiExceptionHandler: Crio a instancia do problem utilizando o método createProblemBuilder
+
+@ExceptionHandler({ EntidadeNaoEncontradaException.class })
+	public ResponseEntity<?> handleEstadoNaoEncontradoException(WebRequest request, EntidadeNaoEncontradaException ex) {
+		
+		HttpStatus status = HttpStatus.NOT_FOUND;
+		ProblemType problemType = ProblemType.ENTIDADE_NAO_ENCONTRADA;
+		String detail = ex.getMessage();
+		
+		Problem problem = createProblemBuilder(status, problemType, detail)
+										.build();
+		
+		return handleExceptionInternal(ex, problem, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+
+	}
  
 
 
