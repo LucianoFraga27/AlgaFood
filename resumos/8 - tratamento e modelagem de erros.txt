@@ -283,11 +283,23 @@ class ApiExceptionHandler {
 
 }
 
+8.15. Criando um exception handler global com ResponseEntityExceptionHandler
+
+-> Será que precisamos tratar todas as exceptions internas individualmente? 
+ -> Não pois temos uma classe que faz isso por nós.
+
+ResponseEntityExceptionHandler : é uma classe de conveniencia que ja trata exceptions 
+internas do spring mvc.
+
+agora a class ApiExceptionHandler herda da classe ResponseEntityExceptionHandler .
+
+@ControllerAdvice
+class ApiExceptionHandler extends ResponseEntityExceptionHandler {}
+
+por padrão o ResponseEntityExceptionHandler  não retorna resposta em seu corpo.
 
 
-
-
-
+8.16. Customizando o corpo da resposta padrão de ResponseEntityExceptionHandler
 
 
 
