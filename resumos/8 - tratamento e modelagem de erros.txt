@@ -441,10 +441,80 @@ Código para alterar corpo do erro:
 	}
 
 
+8.21. Tratando a exception InvalidFormatException na desserialização
+
+# Adicione essa dependencia para:
+
+-> é uma biblioteca que fornece varios métodos
+utilitarios para trabalhar de maneira mais 
+simplificada com strings, numeros, exceptions.
+
+ExceptionUtils.getRootCause(ex);
+
+------------------------------------------------
+<dependency>
+	<groupId>org.apache.commons</groupId>
+	<artifactId>commons-lang3</artifactId>
+</dependency>
+------------------------------------------------
 
 
+Requisição com erro:
 
+{
+	"nome": "tradicao mineira",
+	"taxaFrete": 13.00,
+	"cozinha": {
+		"id":"aaa"	// tipo de dado inserido é invalido
+	}
+}
 
+Código para alterar corpo do erro:
 
+@Override
+	protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
+			HttpHeaders headers, HttpStatus status, WebRequest request) {
+		
+		Throwable rootCause = ExceptionUtils.getRootCause(ex);
+		
+		if(rootCause instanceof InvalidFormatException) {
+			return handleInvalidFormatException((InvalidFormatException)rootCause,headers,status,request);
+		}
+		
+		ProblemType problemType = ProblemType.MESANGEM_INCOMPREENSIVEL;
+		
+		String detail = "O corpo da requisição está inválido. Verifique erro de sintaxe.";
+		
+		Problem problem = createProblemBuilder(status, problemType, detail).build();
+		
+		return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+	}
+	
+	
+	private ResponseEntity<Object> handleInvalidFormatException(InvalidFormatException ex,
+			HttpHeaders headers, HttpStatus status, WebRequest request) {
+		
+		String path = ex.getPath().stream()
+								  .map(ref -> ref.getFieldName())
+								  .collect(Collectors.joining("."));
+		
+		ProblemType problemType = ProblemType.MESANGEM_INCOMPREENSIVEL;
+		String detail = String.format("A propriedade ['%s'] recebeu o valor ['%s'], "
+				+ "que é de um tipo inválido. Corrija e informe o valor compatível com o tipo ['%s'].",
+				path,
+				ex.getValue(),
+				ex.getTargetType().getSimpleName());
+		
+		Problem problem = createProblemBuilder(status, problemType, detail).build();
+		
+		return handleExceptionInternal(ex, problem, new HttpHeaders(), status, request);
+	}
 
+Corpo do erro:
 
+{
+	"status": 400,
+	"type": "https://algafood.com.br/mensagem-incompreensivel",
+	"title": "Mensagem imcopreesível",
+	"detail": "A propriedade ['cozinha.id'] recebeu o valor ['x'], que é de um tipo inválido. Corrija e informe o valor compatível com o tipo ['Long']."
+}
