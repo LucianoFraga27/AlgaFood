@@ -518,3 +518,89 @@ Corpo do erro:
 	"title": "Mensagem imcopreesível",
 	"detail": "A propriedade ['cozinha.id'] recebeu o valor ['x'], que é de um tipo inválido. Corrija e informe o valor compatível com o tipo ['Long']."
 }
+
+
+8.22. Habilitando erros na desserialização de propriedades inexistentes ou ignoradas
+
+# Enviando propriedade inexistente 
+
+
+{
+		"nome": "tradicao mineira",
+		"taxaFrete": 13.00,
+		"descricao":"abc",		// restaurante não possui descrição
+		"cozinha": {
+			"id":"x"
+		}
+}
+
+# a requisição foi executada e os atributos que existem foram atualizados e os errados foram ignorados
+
+# nesse caso fica a sua escolha se vai ou não retornar um erro.
+
+# em application.properties adiocione essa configuração: 
+
+-> spring.jackson.deserialization.fail-on-unknown-properties=true
+
+# Enviando dados que existem porem não deviram aparecer pois eles estão notados com @JsonIgnore
+
+
+{
+	"nome": "tradicao mineira",
+	"taxaFrete": 13.00,
+	"endereco":{
+		"cep":"123"
+	},
+	"cozinha": {
+		"id":"1"
+	}
+}
+
+# em application.properties adiocione essa configuração: 
+
+spring.jackson.deserialization.fail-on-ignored-properties=true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
