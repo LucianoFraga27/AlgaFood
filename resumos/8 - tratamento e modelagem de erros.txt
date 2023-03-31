@@ -627,13 +627,12 @@ Novo método PATCH
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------
 
+8.26. Desafio: tratando a exceção NoHandlerFoundException
 
+spring.mvc.throw-exception-if-no-handler-found=true	// lança uma exception se não existir uma pagina
 
-
-
-
-
-
+spring.web.resources.add-mappings=false
+// Essa propriedade configura o uso do gerenciador padrão de resources no Spring. Com ela ativada o Spring gerencia as respostas padrão de erro 404 por exemplo, impedindo o uso de um Exception Handler.
 
 
 
