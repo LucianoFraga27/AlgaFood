@@ -42,3 +42,84 @@ public Restaurante adicionar(@RequestBody @Valid  Restaurante restaurante) {
 	}
 
 }
+
+9.3 tratando exception de violação de constraints de validação
+
+@Override
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+			HttpHeaders headers, HttpStatus status, WebRequest request) {
+
+		ProblemType problemType = ProblemType.DADOS_INVALIDOS;
+
+		String detail = "Um ou mais campos estão inválidos. Faça o preenchimento correto e tente novamente.";
+
+		Problem problem = createProblemBuilder(status, problemType, detail).build();
+
+		return handleExceptionInternal(ex, problem, headers, status, request);
+
+	}
+
+9.4. Estendendo o Problem Details para adicionar as propriedades com constraints violadas
+
+Adicionando mais um atributo na classe Problem
+
+@JsonInclude(Include.NON_NULL)
+@Getter
+@Builder
+public class Problem {
+	
+	private Integer status;
+	private String type;
+	private String title;
+	private String detail;
+	
+	private String userMessage;
+	private LocalDateTime timestamp;
+	
+	private List<Field> fields;
+	
+	@Getter
+	@Builder
+	public static class Field {
+		private String name;
+		private String userMessage;
+	}
+}
+
+Novo método em exceptios
+
+@Override
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+			HttpHeaders headers, HttpStatus status, WebRequest request) {
+
+		ProblemType problemType = ProblemType.DADOS_INVALIDOS;
+
+		String detail = "Um ou mais campos estão inválidos. Faça o preenchimento correto e tente novamente.";
+		
+		BindingResult bindingResult = ex.getBindingResult();
+		
+		List<Problem.Field> problemFields = bindingResult
+				.getFieldErrors()
+				.stream()
+				.map(fieldError -> Problem.Field.builder()
+						.name(fieldError.getField())
+						.userMessage(fieldError.getDefaultMessage())
+						.build()
+					)
+				.collect(Collectors.toList());
+				
+		
+		Problem problem = createProblemBuilder(status, problemType, detail)
+				.fields(problemFields)
+				.build();
+
+		return handleExceptionInternal(ex, problem, headers, status, request);
+
+	}
+
+
+
+
+
+
+
