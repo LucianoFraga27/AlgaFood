@@ -154,6 +154,38 @@ private Cozinha cozinha;
 
 9.7. Agrupando e restringindo constraints que devem ser usadas na validação
 
+- Em post /cozinhas quero adicionar a obrigatoriedade no atributo nome.
+
+@NotBlank
+private String nome;
+
+porem a resposta de erro retornada reclama do id nulo tb. então temos um problema.
+
+@NotNull(groups = Default.class)
+
+criando grupos de validação 
+
+package com.algaworks.algafood;
+
+public interface Groups {
+
+	public interface CadastroRestaurante {}
+	
+}
+
+
+troque no controller: @Valid Restaurante restaurante
+por isso : @Validate(Groups.CadastroRestaurante.class) Restaurante restaurante
+
+Só valide as constrains do grupo determinado.
+
+Na entidade defina o tipo ex:
+
+@NotNull(groups = Groups.CadastroRestaurante.class) 
+
+
+
+
 
 
 
