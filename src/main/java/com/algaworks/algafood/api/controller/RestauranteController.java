@@ -59,7 +59,7 @@ public class RestauranteController {
 	}
 
 	@PostMapping
-	public Restaurante adicionar(@RequestBody @Validated(Groups.CadastroRestaurante.class) Restaurante restaurante) {
+	public Restaurante adicionar(@RequestBody @Valid Restaurante restaurante) {
 		try {
 			return restauranteService.salvar(restaurante);
 		} catch (EntidadeNaoEncontradaException e) {

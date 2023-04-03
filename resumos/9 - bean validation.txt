@@ -181,7 +181,54 @@ Só valide as constrains do grupo determinado.
 
 Na entidade defina o tipo ex:
 
-@NotNull(groups = Groups.CadastroRestaurante.class) 
+@NotNull(groups = {Groups.CadastroRestaurante.class}) 
+
+
+9.8. Convertendo grupos de constraints para validação em cascata com @ConvertGroup
+
+remove alterações da ultima aula.
+
+@Valid
+@ConvertGroup(from = Default.class, to = Groups.CadastroRestaurante.class) 	// Apenas valide o campo que estive com Grupo (to);
+@NotNull
+@ManyToOne // (fetch=FetchType.LAZY)
+@JoinColumn(name="cozinha_id",nullable=false)
+private Cozinha cozinha;
+
+
+
+e dentro da classe cozinha : 
+
+@NotNull(groups = Groups.CadastroRestaurante.class)
+private Long id;
+
+
+dessa maneira continuamos utilizando o @Valid no controller.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
