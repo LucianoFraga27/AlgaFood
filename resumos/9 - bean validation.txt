@@ -1,0 +1,44 @@
+9.1 - 
+
+Bean Validation é uma especificação que faz parte do JEE.
+Validação de propriedades.
+
+ex:
+
+@NotNull
+@Size(min=3, max=50)
+@Email
+
+OBS:
+como o bean validation é apenas uma especificação precisamos de uma implementação para usa- lo. O projeto Hibernate Validator é a implementação de referencia da implementação.
+
+
+Adicionando dependencia: validation
+
+9.2. Adicionando constraints e validando no controller com @Valid
+
+@Valid 			// Fazer a validação da variavel antes de chamar o método
+
+@NotNull                // Não aceita valores Nulos
+
+Exemplo:
+
+Exception lançada: 'MethodArgumentNotValidException'
+
+Entidade:
+
+@NotNull
+@Column(nullable=false)
+private String nome;
+
+Controller :
+
+@PostMapping
+public Restaurante adicionar(@RequestBody @Valid  Restaurante restaurante) {
+	try {
+		return restauranteService.salvar(restaurante);
+	} catch (EntidadeNaoEncontradaException e) {
+		throw new NegocioException(e.getMessage());
+	}
+
+}
