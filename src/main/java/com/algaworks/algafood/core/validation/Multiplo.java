@@ -12,17 +12,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import javax.validation.Constraint;
-import javax.validation.OverridesAttribute;
 import javax.validation.Payload;
-import javax.validation.constraints.PositiveOrZero;
 
 @Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE })
 @Retention(RUNTIME)
-@Constraint(validatedBy = {})
-@PositiveOrZero
-public @interface TaxaFrete {
-	@OverridesAttribute(constraint = PositiveOrZero.class, name = "message")
-	String message() default "{TaxaFrete.invalida}";
-	Class<?>[] groups() default {};
-	Class<? extends Payload>[] payload() default {};
+@Constraint(validatedBy = {MultiploValidator.class})
+public @interface Multiplo {
+	String message() default "Multiplo invalido";
+	Class<?>[] groups() default { };
+	Class<? extends Payload>[] payload() default { };
+	int numero();
 }
