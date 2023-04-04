@@ -216,7 +216,7 @@ ex1: Na própria notação
 @NotBlank(message = "Campo obrigatório")
 
 
-9.11. Customizando e resolvendo mensagens de validação globais em Resource Bundle
+9.11. Customizando e resolvendo mensagens de validação globais em Resource Bundle 
 
 
 novo arquivo: src/main/resources/messages.properties
@@ -263,6 +263,55 @@ NotBlank=O campo '{0}' é obrigatório		// o atributo aparecerá
 #Editando nome da propriedade
 nome = Nome
 restaurante.nome=Nome do restaurante
+
+
+9.13. Resolvendo mensagens de validação com Resource Bundle do Bean Validation
+
+# Entendendo como alterar a mensagem direto da configuração
+
+novo arquivo: src/main/resources/ValidationMessages.properties
+
+'javax.validation.constraints.PositiveOrZero.message =deve ser um número positivo'
+'TaxaFrete.invalida=Taxa frete esta invalida'
+
+@PositiveOrZero(message="{TaxaFrete.invalida}")
+
+9.14. Usando o Resource Bundle do Spring como Resource Bundle do Bean Validation
+
+Configurando projeto para utilizarmos um só resource bundle
+
+nova classe: com.algaworks.algafood.core.validation.ValidationConfig
+
+LocalValidatorFactoryBean: classe que faz a configuração do bean validation com o spring
+
+@Configuration
+public class ValidationConfig {
+	@Bean
+	public LocalValidatorFactoryBean validator(MessageSource messageSource) {
+		LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
+		bean.setValidationMessageSource(messageSource);
+		return bean;
+	}
+}
+
+movendo a classe Groups para esse mesmo pacote.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
