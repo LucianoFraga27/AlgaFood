@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.SmartValidator;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.algaworks.algafood.core.validation.Groups;
+import com.algaworks.algafood.core.validation.ValidacaoException;
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.exception.NegocioException;
@@ -47,7 +50,10 @@ public class RestauranteController {
 
 	@Autowired
 	private CadastroRestauranteService restauranteService;
-
+	
+	@Autowired
+	private SmartValidator validator;
+	
 	@GetMapping
 	public List<Restaurante> listar() {
 		return restauranteRepository.findAll();
@@ -102,8 +108,18 @@ public class RestauranteController {
 		Restaurante restauranteAtual = restauranteService.buscarOuFalhar(restauranteId);
 
 		merge(campos, restauranteAtual, request);
-
+		validate(restauranteAtual, "restaurante");
+		
 		return atualizar(restauranteId, restauranteAtual);
+	}
+
+	private void validate(Restaurante restaurante, String objectName) {
+		BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(restaurante, objectName);
+		validator.validate(restaurante, bindingResult);
+		
+		if(bindingResult.hasErrors()) {
+			throw new ValidacaoException(bindingResult);
+		}
 	}
 
 	private void merge(Map<String, Object> dadosOrigem, Restaurante restauranteDestino, HttpServletRequest request) {
@@ -117,7 +133,7 @@ public class RestauranteController {
 			objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
 
 			Restaurante restauranteOrigem = objectMapper.convertValue(dadosOrigem, Restaurante.class);
-
+			
 			System.out.println(restauranteOrigem);
 
 			dadosOrigem.forEach((nomePropriedade, valorPropriedade) -> {

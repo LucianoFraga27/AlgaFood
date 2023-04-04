@@ -355,12 +355,26 @@ ex1:
 @Multiplo(numero=5)
 private BigDecimal num;
 
+git commit -m "Validação Customizada em Nível de Classe 9.17/18/19"
+
+9.17. Criando constraints de validação customizadas em nível de classe
+
+Em nivel de classe significa que vamos anotar uma entidade, uma classe inteira.
+
+/*
+Suposto problema
+A API deve validar todo restaurante que fornece frete gratuito, obrigatoriamente ter no nome, uma descricao "frete gratis"
+*/
 
 
+nova classe de validação: com.algaworks.algafood.core.validation.ValorZeroIncluiDescricao
+
+@ValorZeroIncluiDescricao(valorField="taxaFrete", descricaoField="nome",ldescricaoObrigatoria="Frete Grátis")
 
 
+9.18. Ajustando Exception Handler para adicionar mensagens de validação em nível de classe
 
-
+9.19. Executando processo de validação programaticamente
 
 
 
