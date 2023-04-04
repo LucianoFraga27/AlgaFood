@@ -294,13 +294,11 @@ public class ValidationConfig {
 	}
 }
 
-movendo a classe Groups para esse mesmo pacote.
+**movendo a classe Groups para esse mesmo pacote.
 
+9.15. Criando constraints de validação customizadas usando composição
 
-
-
-
-
+nova anotação: com.algaworks.algafood.core.validation.TaxaFrete
 
 
 
