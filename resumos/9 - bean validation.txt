@@ -206,29 +206,63 @@ private Long id;
 dessa maneira continuamos utilizando o @Valid no controller.
 
 
+9.10. Customizando mensagens de validação na anotação da constraint
+
+Quando violamos uma regra de validação, recebemos uma mensagem padrão do bean validation
+Podemos costumizar essa mensagem.
+
+ex1: Na própria notação
+
+@NotBlank(message = "Campo obrigatório")
+
+
+9.11. Customizando e resolvendo mensagens de validação globais em Resource Bundle
+
+
+novo arquivo: src/main/resources/messages.properties
+
+// obs: mude o arquivo para UTF-8.     procure as propriedades de messages.properties
+
+'NotBlank.restaurante.nome=Nome do Restaurante é obrigatório'
 
 
 
 
+No ApiExceptionHandler: No método onde tramos os erros do BeanValidation.
+trocaremos:
+
+Na classe adicionamos isso:
+
+@Autowired
+private MessageSource messageSource;
+
+e no método :
+
+List<Problem.Field> problemFields = bindingResult
+				.getFieldErrors()
+				.stream()
+				.map(fieldError -> {
+				String message = messageSource.getMessage(fieldError, 						LocaleContextHolder.getLocale());
+				return Problem.Field.builder()
+				.name(fieldError.getField())
+				.userMessage(message)
+				.build();
+				} 
+				)
+				.collect(Collectors.toList());
 
 
 
+no arquivo: src/main/resources/messages.properties
 
+# NotBlank.restaurante.nome=Nome do Restaurante é obrigatório
+# NotBlank=é obrigatório
+NotBlank=O campo '{0}' é obrigatório		// o atributo aparecerá
+# NotBlank.nome=Informe um nome
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#Editando nome da propriedade
+nome = Nome
+restaurante.nome=Nome do restaurante
 
 
 
