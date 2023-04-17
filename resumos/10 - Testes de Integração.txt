@@ -1,0 +1,140 @@
+10.1 - Testes de integração e testes de api
+
+Testes de integração: São teste que valida o funcionamento dos componentes de software.
+Testamos a integração de todos os componentes.
+
+Testes de Api: Fazemos uma requisição real para api e esperamos uma resposta.
+
+
+10.2. Preparando o projeto para testes de integração
+
+testes ficam na pasta src/test/java
+
+escrevemos testes utilizando JUNIT
+
+import org.junit.jupiter.api.Assertions;	// poder utilizar o Assertions.
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest		// fornece as funcionalidades do springboot nos testes
+class AlgafoodApplicationTests {
+
+	@Test		// todo teste é anotado com @test
+	void contextLoads() {
+		Assertions.assertFalse(true);
+	}
+
+}
+
+
+10.3. Criando e rodando um teste de integração com Spring Boot, JUnit e AssertJ
+
+@SpringBootTest
+class CadastroCozinhaIntegrationTests {}
+
+
+	// Happy Path
+	@Test
+	public void testarCadastroCozinhaComSucesso() {
+		// || cenario ||
+
+		// Instanciando cozinha
+		Cozinha novaCozinha = new Cozinha();
+		novaCozinha.setNome("Chinesa");
+
+		// || ação ||
+		novaCozinha = cadastroCozinhaService.salvar(novaCozinha);
+
+		// || validação ||
+
+		assertThat(novaCozinha).isNotNull();
+		assertThat(novaCozinha.getId()).isNotNull();
+
+	}
+
+	// Unhappy path
+	@Test
+	public void testarFalharAoCadastrarCozinhaSemNome() {
+		// || cenario ||
+
+		Cozinha novaCozinha = new Cozinha();
+		novaCozinha.setNome("");
+
+		// || ação ||
+
+		ConstraintViolationException erroEsperado = Assertions.assertThrows		(ConstraintViolationException.class, () -> {
+			cadastroCozinhaService.salvar(novaCozinha);
+		});
+
+		// || validação ||
+
+		assertThat(erroEsperado).isNotNull(); // validando exception
+
+	}	
+
+
+10.4. Escrevendo bons nomes de testes
+
+https://blog.mandic.com.br/artigos/10-dicas-para-escrever-bons-testes-de-unidade/
+
+* O ideal é que o projeto inteiro siga o mesmo padrão
+
+ex:
+
+
+givenPrecondições_WhenCondicao_ThenComportamentoEsperdo() {}
+
+deveAtribuirId_QuandoCadastrarCozinhaComDadosCorretos()  {}
+
+deveFalhar_QuandoCadastrarCozinhaSemNome() {}
+
+
+10.5. Desafio: escrevendo testes de integração
+
+
+10.6. Rodando os testes por linhas de comandos pelo Maven
+
+./mvnw test 	// vai rodar os testes do projeto
+
+
+10.7. Configurando Maven Failsafe Plugin no projeto
+
+Isso serve para quando buildarmos o projeto, os testes não serem executados
+
+Adicionar plugin:
+<plugin>
+	<artifactId>maven-failsafe-plugin</artifactId>
+</plugin>
+
+Alterar nome das classes de teste: 
+ClasseTesteComSufixoIT
+
+10.8. Implementando Testes de API com REST Assured e validando o código de status HTTP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
