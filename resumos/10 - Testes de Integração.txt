@@ -173,8 +173,19 @@ preferences -> java -> favorites -> add : org.hamcrest.Matchers
 
 10.10. Criando um método para fazer setup dos testes
 
+Métodos de callback
 
+Método executado antes de cada teste
 
+Local para preparar seus testes
+
+	@BeforeEach
+	public void setUp() {
+		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+		RestAssured.port = port;
+		RestAssured.basePath = "/cozinhas";
+	}
+	
 
 
 

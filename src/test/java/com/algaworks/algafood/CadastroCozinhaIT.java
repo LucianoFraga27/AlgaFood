@@ -7,9 +7,12 @@ import static org.hamcrest.Matchers.hasSize;
 
 import javax.validation.ConstraintViolationException;
 
+import org.aspectj.lang.annotation.Before;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,12 +33,21 @@ class CadastroCozinhaIT {
 	@LocalServerPort
 	private int port;
 
+	@BeforeEach
+	public void setUp() {
+		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+		RestAssured.port = port;
+		RestAssured.basePath = "/cozinhas";
+	}
+	
+	
 	@Test
 	public void deveRetornarStatus200_QuandoConsultarCozinha() {
 
-		enableLoggingOfRequestAndResponseIfValidationFails();
+		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+		
 
-		given().basePath("/cozinhas").port(port).accept(ContentType.JSON).when().get().then().statusCode(200);
+		given().accept(ContentType.JSON).when().get().then().statusCode(200);
 	}
 
 	@Test
