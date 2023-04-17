@@ -1,0 +1,9 @@
+10.1 - Testes de integração e testes de api
+
+Testes de integração: São teste que valida o funcionamento dos componentes de software.
+Testamos a integração de todos os componentes.
+
+Testes de Api: Fazemos uma requisição real para api e esperamos uma resposta.
+
+
+10.2. Preparando o projeto para testes de integração

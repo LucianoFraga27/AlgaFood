@@ -355,7 +355,7 @@ ex1:
 @Multiplo(numero=5)
 private BigDecimal num;
 
-git commit -m "Validação Customizada em Nível de Classe 9.17/18/19"
+git commit -m "Validação Customizada em Nível de Classe 9.17/18/19/20"
 
 9.17. Criando constraints de validação customizadas em nível de classe
 
