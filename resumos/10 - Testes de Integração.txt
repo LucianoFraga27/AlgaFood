@@ -110,19 +110,68 @@ Alterar nome das classes de teste:
 ClasseTesteComSufixoIT
 
 10.8. Implementando Testes de API com REST Assured e validando o código de status HTTP
+ 
+
+biblioteca para testes e validação de RestApi, o codigo fica simples
+
+<dependency>
+	<groupId>io.rest-assured</groupId>
+	<artifactId>rest-assured</artifactId>
+	<scope>test</scope>
+</dependency>
+
+Ex:
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class CadastroCozinhaIT {
+@LocalServerPort
+private int port;
+public void deveRetornarStatus200_QuandoConsultarCozinha() {
+		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();	// explicação do que foi feito, para podermos entender o erro.
+		RestAssured.given()
+				.basePath("/cozinhas")
+				.port(port)
+				.accept(ContentType.JSON)
+			     .when()
+				.get()
+			     .then()
+				.statusCode(HttpStatus.OK.value());
+	}
+}
+// dado o path "/cozinhas" na porta "port", devo receber um Json, por uma requisição do tipo "get" o status code esperado é "200". 
+
+importação estática do RestAssured
+ "io.restassured.RestAssured"
+
+preferences -> java -> favorites -> add :  io.restassured.RestAssured
+
+.given().
 
 
+10.9. Validando o corpo da resposta HTTP
 
+importação estática do Matchers
+ "org.hamcrest.Matchers"
 
+preferences -> java -> favorites -> add : org.hamcrest.Matchers
 
+@Test
+	public void deveRetornarStatus200_QuandoConsultarCozinha() {
 
+		enableLoggingOfRequestAndResponseIfValidationFails();
 
+		given().basePath("/cozinhas").port(port).accept(ContentType.JSON).when().get().then().statusCode(200);
+	}
 
+	@Test
+	public void deveConter5Cozinhas_QuandoConsultarCozinha() {
 
+		enableLoggingOfRequestAndResponseIfValidationFails();
 
+		given().basePath("/cozinhas").port(port).accept(ContentType.JSON).when().get().then().body("", hasSize(10))
+				.body("nome", Matchers.hasItems("Tailandesa", "Chinesa"));
+	}
 
-
-
+10.10. Criando um método para fazer setup dos testes
 
 
 
