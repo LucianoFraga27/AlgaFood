@@ -2,6 +2,7 @@ package com.algaworks.algafood;
 
 
 import static io.restassured.RestAssured.enableLoggingOfRequestAndResponseIfValidationFails;
+import static org.hamcrest.Matchers.equalTo;
 
 import org.flywaydb.core.Flyway;
 import org.hamcrest.Matchers;
@@ -69,6 +70,39 @@ class CadastroCozinhaIT {
 					.then()
 						.body("nome", Matchers.hasItems(cozinha_1,cozinha_2));
 						
+	}
+	
+	@Test
+	public void deveRetornarRespostaEStatusCorretos_QuandoConsultarCozinhaExistente() {
+		
+		int id = 2;
+		
+		enableLoggingOfRequestAndResponseIfValidationFails();
+		
+		RestAssured.given()
+						.pathParam("cozinhaId", id)
+						.accept(ContentType.JSON)
+					.when()
+						.get("/{cozinhaId}")
+					.then()
+						.statusCode(HttpStatus.OK.value())
+						.body("nome", Matchers.equalTo("Americana"));
+	}
+	
+	@Test
+	public void deveRetornarResposta400_QuandoConsultarCozinhaInexistente() {
+		
+		int id = 100;
+		
+		enableLoggingOfRequestAndResponseIfValidationFails();
+		
+		RestAssured.given()
+						.pathParam("cozinhaId", id)
+						.accept(ContentType.JSON)
+					.when()
+						.get("/{cozinhaId}")
+					.then()
+						.statusCode(HttpStatus.BAD_REQUEST.value());
 	}
 	
 	private void prepararDados() {
