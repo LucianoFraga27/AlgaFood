@@ -13,6 +13,11 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 
+import com.algaworks.algafood.domain.model.Cozinha;
+import com.algaworks.algafood.domain.repository.CozinhaRepository;
+
+import com.algaworks.algafood.util.DatabaseCleaner;
+
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
@@ -24,14 +29,18 @@ class CadastroCozinhaIT {
 	private int port;
 	
 	@Autowired
-	private Flyway flyway;
+	private DatabaseCleaner databaseCleaner;
+	
+	@Autowired
+	private CozinhaRepository cozinhaRepository;
 	
 	@BeforeEach
 	public void setUp() {
 		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
 		RestAssured.port = port;
 		RestAssured.basePath = "/cozinhas";
-		flyway.migrate();
+		databaseCleaner.clearTables();
+		prepararDados();
 	}
 	
 	@Test
@@ -62,6 +71,22 @@ class CadastroCozinhaIT {
 						
 	}
 	
-	
+	private void prepararDados() {
+		Cozinha cozinha1 = new Cozinha();
+		cozinha1.setNome("Tailandesa");
+		cozinhaRepository.save(cozinha1);
+		
+		Cozinha cozinha2 = new Cozinha();
+		cozinha2.setNome("Americana");
+		cozinhaRepository.save(cozinha2);
+		
+		Cozinha cozinha3 = new Cozinha();
+		cozinha3.setNome("Brasileira");
+		cozinhaRepository.save(cozinha3);
+		
+		Cozinha cozinha4 = new Cozinha();
+		cozinha4.setNome("Chinesa");
+		cozinhaRepository.save(cozinha4);
+	}
 	
 }
