@@ -272,3 +272,6 @@ RestAssured.given()
 pós alteração o teste deva falhar. 
 -> testes de funcionalidade, se o endpoint tem função x, então valide a funcionalidade.
 -> lembre de testar os caminhos infelizes.
+
+
+
