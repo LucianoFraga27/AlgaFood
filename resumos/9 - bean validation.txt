@@ -1,0 +1,381 @@
+9.1 - 
+
+Bean Validation é uma especificação que faz parte do JEE.
+Validação de propriedades.
+
+ex:
+
+@NotNull
+@Size(min=3, max=50)
+@Email
+
+OBS:
+como o bean validation é apenas uma especificação precisamos de uma implementação para usa- lo. O projeto Hibernate Validator é a implementação de referencia da implementação.
+
+
+Adicionando dependencia: validation
+
+9.2. Adicionando constraints e validando no controller com @Valid
+
+@Valid 			// Fazer a validação da variavel antes de chamar o método
+
+@NotNull                // Não aceita valores Nulos
+
+Exemplo:
+
+Exception lançada: 'MethodArgumentNotValidException'
+
+Entidade:
+
+@NotNull
+@Column(nullable=false)
+private String nome;
+
+Controller :
+
+@PostMapping
+public Restaurante adicionar(@RequestBody @Valid  Restaurante restaurante) {
+	try {
+		return restauranteService.salvar(restaurante);
+	} catch (EntidadeNaoEncontradaException e) {
+		throw new NegocioException(e.getMessage());
+	}
+
+}
+
+9.3 tratando exception de violação de constraints de validação
+
+@Override
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+			HttpHeaders headers, HttpStatus status, WebRequest request) {
+
+		ProblemType problemType = ProblemType.DADOS_INVALIDOS;
+
+		String detail = "Um ou mais campos estão inválidos. Faça o preenchimento correto e tente novamente.";
+
+		Problem problem = createProblemBuilder(status, problemType, detail).build();
+
+		return handleExceptionInternal(ex, problem, headers, status, request);
+
+	}
+
+9.4. Estendendo o Problem Details para adicionar as propriedades com constraints violadas
+
+Adicionando mais um atributo na classe Problem
+
+@JsonInclude(Include.NON_NULL)
+@Getter
+@Builder
+public class Problem {
+	
+	private Integer status;
+	private String type;
+	private String title;
+	private String detail;
+	
+	private String userMessage;
+	private LocalDateTime timestamp;
+	
+	private List<Field> fields;
+	
+	@Getter
+	@Builder
+	public static class Field {
+		private String name;
+		private String userMessage;
+	}
+}
+
+Novo método em exceptios
+
+@Override
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+			HttpHeaders headers, HttpStatus status, WebRequest request) {
+
+		ProblemType problemType = ProblemType.DADOS_INVALIDOS;
+
+		String detail = "Um ou mais campos estão inválidos. Faça o preenchimento correto e tente novamente.";
+		
+		BindingResult bindingResult = ex.getBindingResult();
+		
+		List<Problem.Field> problemFields = bindingResult
+				.getFieldErrors()
+				.stream()
+				.map(fieldError -> Problem.Field.builder()
+						.name(fieldError.getField())
+						.userMessage(fieldError.getDefaultMessage())
+						.build()
+					)
+				.collect(Collectors.toList());
+				
+		
+		Problem problem = createProblemBuilder(status, problemType, detail)
+				.fields(problemFields)
+				.build();
+
+		return handleExceptionInternal(ex, problem, headers, status, request);
+
+	}
+
+
+9.5. Conhecendo e adicionando mais constraints de validação no modelo
+
+Constrains:
+https://docs.jboss.org/hibernate/stable/validator/reference/en-US/html_single/#section-builtin-constraints
+
+@DecimalMin("0") 	-> o value recebe uma string que pode ser convertida em bigdecimal
+@PositiveOrZero  	-> Ou um valor positivo ou Zero, ou seja v <= 0
+
+@NotNull		-> Não aceita valores nulos
+@NotBlank 		-> Não aceita valores nulos e vazios e nem espaços em branco
+@NotEmpty		-> Não aceita valores vazios
+
+
+9.6. Validando as associações de uma entidade em cascata
+
+requisição errada:
+{
+	"nome":"outback",
+	"taxaFrete": 1 ,
+	"cozinha": null
+}
+
+
+- podemos validar isso com Cozinha @NotNull.
+- porém se enviarmos uma cozinha com código nulo, volta a ter erro não resolvido.
+
+- devemos fazer um @NotNull no id de cozinha, porém isso não vai resolver, pois
+o bean validation não valida em cascata.
+- A não ser que especificamos isso. com o @Valid no atributo :
+
+@Valid 			// valide as propriedades de cozinha
+@NotNull		// Cozinha não pode ser um atributo nulo
+private Cozinha cozinha;
+
+9.7. Agrupando e restringindo constraints que devem ser usadas na validação
+
+- Em post /cozinhas quero adicionar a obrigatoriedade no atributo nome.
+
+@NotBlank
+private String nome;
+
+porem a resposta de erro retornada reclama do id nulo tb. então temos um problema.
+
+@NotNull(groups = Default.class)
+
+criando grupos de validação 
+
+package com.algaworks.algafood;
+
+public interface Groups {
+
+	public interface CadastroRestaurante {}
+	
+}
+
+
+troque no controller: @Valid Restaurante restaurante
+por isso : @Validate(Groups.CadastroRestaurante.class) Restaurante restaurante
+
+Só valide as constrains do grupo determinado.
+
+Na entidade defina o tipo ex:
+
+@NotNull(groups = {Groups.CadastroRestaurante.class}) 
+
+
+9.8. Convertendo grupos de constraints para validação em cascata com @ConvertGroup
+
+remove alterações da ultima aula.
+
+@Valid
+@ConvertGroup(from = Default.class, to = Groups.CadastroRestaurante.class) 	// Apenas valide o campo que estive com Grupo (to);
+@NotNull
+@ManyToOne // (fetch=FetchType.LAZY)
+@JoinColumn(name="cozinha_id",nullable=false)
+private Cozinha cozinha;
+
+
+
+e dentro da classe cozinha : 
+
+@NotNull(groups = Groups.CadastroRestaurante.class)
+private Long id;
+
+
+dessa maneira continuamos utilizando o @Valid no controller.
+
+
+9.10. Customizando mensagens de validação na anotação da constraint
+
+Quando violamos uma regra de validação, recebemos uma mensagem padrão do bean validation
+Podemos costumizar essa mensagem.
+
+ex1: Na própria notação
+
+@NotBlank(message = "Campo obrigatório")
+
+
+9.11. Customizando e resolvendo mensagens de validação globais em Resource Bundle 
+
+
+novo arquivo: src/main/resources/messages.properties
+
+// obs: mude o arquivo para UTF-8.     procure as propriedades de messages.properties
+
+'NotBlank.restaurante.nome=Nome do Restaurante é obrigatório'
+
+
+
+
+No ApiExceptionHandler: No método onde tramos os erros do BeanValidation.
+trocaremos:
+
+Na classe adicionamos isso:
+
+@Autowired
+private MessageSource messageSource;
+
+e no método :
+
+List<Problem.Field> problemFields = bindingResult
+				.getFieldErrors()
+				.stream()
+				.map(fieldError -> {
+				String message = messageSource.getMessage(fieldError, 						LocaleContextHolder.getLocale());
+				return Problem.Field.builder()
+				.name(fieldError.getField())
+				.userMessage(message)
+				.build();
+				} 
+				)
+				.collect(Collectors.toList());
+
+
+
+no arquivo: src/main/resources/messages.properties
+
+# NotBlank.restaurante.nome=Nome do Restaurante é obrigatório
+# NotBlank=é obrigatório
+NotBlank=O campo '{0}' é obrigatório		// o atributo aparecerá
+# NotBlank.nome=Informe um nome
+
+#Editando nome da propriedade
+nome = Nome
+restaurante.nome=Nome do restaurante
+
+
+9.13. Resolvendo mensagens de validação com Resource Bundle do Bean Validation
+
+# Entendendo como alterar a mensagem direto da configuração
+
+novo arquivo: src/main/resources/ValidationMessages.properties
+
+'javax.validation.constraints.PositiveOrZero.message =deve ser um número positivo'
+'TaxaFrete.invalida=Taxa frete esta invalida'
+
+@PositiveOrZero(message="{TaxaFrete.invalida}")
+
+9.14. Usando o Resource Bundle do Spring como Resource Bundle do Bean Validation
+
+Configurando projeto para utilizarmos um só resource bundle
+
+nova classe: com.algaworks.algafood.core.validation.ValidationConfig
+
+LocalValidatorFactoryBean: classe que faz a configuração do bean validation com o spring
+
+@Configuration
+public class ValidationConfig {
+	@Bean
+	public LocalValidatorFactoryBean validator(MessageSource messageSource) {
+		LocalValidatorFactoryBean bean = new LocalValidatorFactoryBean();
+		bean.setValidationMessageSource(messageSource);
+		return bean;
+	}
+}
+
+**movendo a classe Groups para esse mesmo pacote.
+
+9.15. Criando constraints de validação customizadas usando composição
+
+nova anotação: com.algaworks.algafood.core.validation.TaxaFrete
+
+@Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE })
+@Retention(RUNTIME)
+@Constraint(validatedBy = {})
+@PositiveOrZero
+public @interface TaxaFrete {
+	@OverridesAttribute(constraint = PositiveOrZero.class, name = "message")
+	String message() default "{TaxaFrete.invalida}";
+	Class<?>[] groups() default {};
+	Class<? extends Payload>[] payload() default {};
+}
+
+9.16. Criando constraints de validação customizadas com implementação de ConstraintValidator
+
+nova anotação: com.algaworks.algafood.core.validation.Mutiplo
+
+@Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE })
+@Retention(RUNTIME)
+@Constraint(validatedBy = {MultiploValidator.class})
+public @interface Multiplo {
+	String message() default "Multiplo invalido";
+	Class<?>[] groups() default { };
+	Class<? extends Payload>[] payload() default { };
+	int numero();
+}
+
+nova classe de validação: com.algaworks.algafood.core.validation.MultiploValidator
+
+public class MultiploValidator implements ConstraintValidator<Multiplo, Number> {
+
+	private int numeroMultiplo;
+
+	@Override
+	public void initialize(Multiplo constraintAnnotation) {
+		this.numeroMultiplo = constraintAnnotation.numero();
+	}
+
+	@Override
+	public boolean isValid(Number value, ConstraintValidatorContext context) {
+		boolean valido = true;
+		if (value != null) {
+			var valorDecimal = BigDecimal.valueOf(value.doubleValue());
+			var multiploDecimal = BigDecimal.valueOf(this.numeroMultiplo);
+			var resto = valorDecimal.remainder(multiploDecimal);
+			valido = BigDecimal.ZERO.compareTo(resto) == 0;
+		}
+		return valido;
+	}
+
+}
+
+ex1:
+
+@Multiplo(numero=5)
+private BigDecimal num;
+
+git commit -m "Validação Customizada em Nível de Classe 9.17/18/19"
+
+9.17. Criando constraints de validação customizadas em nível de classe
+
+Em nivel de classe significa que vamos anotar uma entidade, uma classe inteira.
+
+/*
+Suposto problema
+A API deve validar todo restaurante que fornece frete gratuito, obrigatoriamente ter no nome, uma descricao "frete gratis"
+*/
+
+
+nova classe de validação: com.algaworks.algafood.core.validation.ValorZeroIncluiDescricao
+
+@ValorZeroIncluiDescricao(valorField="taxaFrete", descricaoField="nome",ldescricaoObrigatoria="Frete Grátis")
+
+
+9.18. Ajustando Exception Handler para adicionar mensagens de validação em nível de classe
+
+9.19. Executando processo de validação programaticamente
+
+
+
+

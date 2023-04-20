@@ -1,0 +1,274 @@
+10.1 - Testes de integração e testes de api
+
+Testes de integração: São teste que valida o funcionamento dos componentes de software.
+Testamos a integração de todos os componentes.
+
+Testes de Api: Fazemos uma requisição real para api e esperamos uma resposta.
+
+
+10.2. Preparando o projeto para testes de integração
+
+testes ficam na pasta src/test/java
+
+escrevemos testes utilizando JUNIT
+
+import org.junit.jupiter.api.Assertions;	// poder utilizar o Assertions.
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest		// fornece as funcionalidades do springboot nos testes
+class AlgafoodApplicationTests {
+
+	@Test		// todo teste é anotado com @test
+	void contextLoads() {
+		Assertions.assertFalse(true);
+	}
+
+}
+
+
+10.3. Criando e rodando um teste de integração com Spring Boot, JUnit e AssertJ
+
+@SpringBootTest
+class CadastroCozinhaIntegrationTests {}
+
+
+	// Happy Path
+	@Test
+	public void testarCadastroCozinhaComSucesso() {
+		// || cenario ||
+
+		// Instanciando cozinha
+		Cozinha novaCozinha = new Cozinha();
+		novaCozinha.setNome("Chinesa");
+
+		// || ação ||
+		novaCozinha = cadastroCozinhaService.salvar(novaCozinha);
+
+		// || validação ||
+
+		assertThat(novaCozinha).isNotNull();
+		assertThat(novaCozinha.getId()).isNotNull();
+
+	}
+
+	// Unhappy path
+	@Test
+	public void testarFalharAoCadastrarCozinhaSemNome() {
+		// || cenario ||
+
+		Cozinha novaCozinha = new Cozinha();
+		novaCozinha.setNome("");
+
+		// || ação ||
+
+		ConstraintViolationException erroEsperado = Assertions.assertThrows		(ConstraintViolationException.class, () -> {
+			cadastroCozinhaService.salvar(novaCozinha);
+		});
+
+		// || validação ||
+
+		assertThat(erroEsperado).isNotNull(); // validando exception
+
+	}	
+
+
+10.4. Escrevendo bons nomes de testes
+
+https://blog.mandic.com.br/artigos/10-dicas-para-escrever-bons-testes-de-unidade/
+
+* O ideal é que o projeto inteiro siga o mesmo padrão
+
+ex:
+
+
+givenPrecondições_WhenCondicao_ThenComportamentoEsperdo() {}
+
+deveAtribuirId_QuandoCadastrarCozinhaComDadosCorretos()  {}
+
+deveFalhar_QuandoCadastrarCozinhaSemNome() {}
+
+
+10.5. Desafio: escrevendo testes de integração
+
+
+10.6. Rodando os testes por linhas de comandos pelo Maven
+
+./mvnw test 	// vai rodar os testes do projeto
+
+
+10.7. Configurando Maven Failsafe Plugin no projeto
+
+Isso serve para quando buildarmos o projeto, os testes não serem executados
+
+Adicionar plugin:
+<plugin>
+	<artifactId>maven-failsafe-plugin</artifactId>
+</plugin>
+
+Alterar nome das classes de teste: 
+ClasseTesteComSufixoIT
+
+10.8. Implementando Testes de API com REST Assured e validando o código de status HTTP
+ 
+
+biblioteca para testes e validação de RestApi, o codigo fica simples
+
+<dependency>
+	<groupId>io.rest-assured</groupId>
+	<artifactId>rest-assured</artifactId>
+	<scope>test</scope>
+</dependency>
+
+Ex:
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class CadastroCozinhaIT {
+@LocalServerPort
+private int port;
+public void deveRetornarStatus200_QuandoConsultarCozinha() {
+		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();	// explicação do que foi feito, para podermos entender o erro.
+		RestAssured.given()
+				.basePath("/cozinhas")
+				.port(port)
+				.accept(ContentType.JSON)
+			     .when()
+				.get()
+			     .then()
+				.statusCode(HttpStatus.OK.value());
+	}
+}
+// dado o path "/cozinhas" na porta "port", devo receber um Json, por uma requisição do tipo "get" o status code esperado é "200". 
+
+importação estática do RestAssured
+ "io.restassured.RestAssured"
+
+preferences -> java -> favorites -> add :  io.restassured.RestAssured
+
+.given().
+
+
+10.9. Validando o corpo da resposta HTTP
+
+importação estática do Matchers
+ "org.hamcrest.Matchers"
+
+preferences -> java -> favorites -> add : org.hamcrest.Matchers
+
+@Test
+	public void deveRetornarStatus200_QuandoConsultarCozinha() {
+
+		enableLoggingOfRequestAndResponseIfValidationFails();
+
+		given().basePath("/cozinhas").port(port).accept(ContentType.JSON).when().get().then().statusCode(200);
+	}
+
+	@Test
+	public void deveConter5Cozinhas_QuandoConsultarCozinha() {
+
+		enableLoggingOfRequestAndResponseIfValidationFails();
+
+		given().basePath("/cozinhas").port(port).accept(ContentType.JSON).when().get().then().body("", hasSize(10))
+				.body("nome", Matchers.hasItems("Tailandesa", "Chinesa"));
+	}
+
+10.10. Criando um método para fazer setup dos testes
+
+Métodos de callback
+
+Método executado antes de cada teste
+
+Local para preparar seus testes
+
+	@BeforeEach
+	public void setUp() {
+		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+		RestAssured.port = port;
+		RestAssured.basePath = "/cozinhas";
+	}
+	
+
+10.11. Entendendo o problema da ordem de execução dos testes
+
+# O sucesso de um teste não pode depender de sua ordem de execução.
+
+10.12. Voltando o estado inicial do banco de dados para cada execução de teste com callback do Flyway
+
+# pre determinar o conjunto de dados que será utilizado
+# rodar o flyway antes da execução de cada teste]
+@Autowired
+private Flyway flyway;
+setUp(){	
+	flyway.migrate();
+}
+
+
+10.13. Configurando um banco de testes e usando @TestPropertySource
+
+criando aplication properties de teste: 
+src/test/resources/application-test.properties
+------------------------------------------------------------------------
+
+spring.datasource.url=jdbc:mysql://localhost/algafood_test?createDatabaseIfNotExist=true&serverTimezone=UTC
+spring.datasource.username=root
+spring.datasource.password=1234
+
+spring.flyway.locations=classpath:db/migration
+
+spring.datasource.hikari.maximum-pool-size=1
+
+------------------------------------------------------------------------
+
+@TestPropertySource("/application-test.properties")	// notação que chama as propriedades da classe de test
+class CadastroCozinhaIT {}
+
+
+10.14. Limpando e populando o banco de dados de teste
+
+# novo arquivo
+	# crie um pacote chamado Util, nos testes
+	e cole esse código:
+	https://gist.github.com/thiagofa/cff61c709277f48a241c145116b92ec1
+
+DatabaseCleaner 	// nome da classe
+
+na classe de testE:
+
+@AutoWired
+private DatabaseCleaner databaseCleaner;
+
+@BeforeEach
+	public void setUp() {
+		RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+		RestAssured.port = port;
+		RestAssured.basePath = "/cozinhas";
+		databaseCleaner.clearTables();
+		prepararDados();
+	}
+
+private void prepararDados() {
+		Cozinha cozinha1 = new Cozinha();
+		cozinha1.setNome("Tailandesa");
+		cozinhaRepository.save(cozinha1);
+		
+}
+
+10.15. Testando endpoint passando parâmetro de URL
+
+RestAssured.given()
+		.pathParam("cozinhaId", id)
+		.accept(ContentType.JSON)
+	    .when()
+		.get("/{cozinhaId}")	
+	     .then()
+		.statusCode(HttpStatus.OK.value())								.body("nome", Matchers.equalTo("Americana"));
+
+
+
+10.17 - o que testar?
+
+-> devemos testar o que agrega valor.
+-> escrever testes para garantir que o que desenvolvemos não irá quebrar.
+-> testes focados na interface da API, no contrato da API, de maneira que
+pós alteração o teste deva falhar. 
+-> testes de funcionalidade, se o endpoint tem função x, então valide a funcionalidade.
+-> lembre de testar os caminhos infelizes.
