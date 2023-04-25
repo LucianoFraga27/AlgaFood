@@ -7,3 +7,19 @@ Todos os métodos publicos que tem mudança no banco de dados é legal que tenha
 
 Evitar problemas de inconsistencia no banco de dados.
 
+
+11.2. Refinando o payload de cadastro com @JsonIgnoreProperties
+
+
+@JsonIgnoreProperties(value={"nome"}, allowGetters = true) 	// Ignore a propriedade 'nome' do atributo cozinha, apenas na desserialização; // Ignorando apenas no set
+private Cozinha cozinha;
+
+
+11.3. Criando classes de mixin para usar as anotações do Jackson
+
+Mixin é uma classe que possui membros de uma outra classe original.
+
+Onde a configuração ficam na classe Mixin.
+
+
+
