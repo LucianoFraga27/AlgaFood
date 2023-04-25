@@ -21,5 +21,48 @@ Mixin é uma classe que possui membros de uma outra classe original.
 
 Onde a configuração ficam na classe Mixin.
 
+@Component
+public class JacksonMixinModule extends SimpleModule{
+
+	private static final long serialVersionUID = 1L;
+	
+	public JacksonMixinModule() {
+		setMixInAnnotation(Restaurante.class, RestauranteMixin.class);
+		setMixInAnnotation(Cozinha.class, CozinhaMixin.class);
+		setMixInAnnotation(Cidade.class, CidadeMixin.class);
+	}
+}
+
+11.5. Antes de estudar sobre data/hora: relembrando as aulas de geografia e entendendo os fusos horários
+
+timezone = fuso horario
+
+offset = diferença de horarios
+
+utc = padrão de horario universal
+
+gmt = horario de granuich 
+
+brt = horario de brasilia  | brt = utc - 3 
+
+
+
+11.6. Boas práticas para trabalhar com data e hora em REST APIs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
