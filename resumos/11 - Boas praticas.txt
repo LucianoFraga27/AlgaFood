@@ -94,12 +94,44 @@ public static void main(String[] args) {
 		SpringApplication.run(AlgafoodApplication.class, args);
 	}
 
+11.9. Isolando o Domain Model do Representation Model com o padrão DTO
+
+Nova classe Modelo de Representação do recurso
+
+api.model.RestauranteModel
+
+@Setter
+@Getter
+public class RestauranteModel {
+
+	private Long id;
+	private String nome;
+	private BigDecimal taxaFrete;
+	private CozinhaModel cozinha;
+	
+}
 
 
+11.10. Implementando a conversão de entidade para DTO
 
-
-
-
+	@GetMapping("/{restauranteId}")
+	public RestauranteModel buscar(@PathVariable Long restauranteId) {
+		
+		Restaurante restaurante = restauranteService.buscarOuFalhar(restauranteId);
+		
+		CozinhaModel cozinhaModel = new CozinhaModel();
+		cozinhaModel.setId(restaurante.getCozinha().getId());
+		cozinhaModel.setNome(restaurante.getCozinha().getNome());
+		
+		RestauranteModel restauranteModel = new RestauranteModel();
+		restauranteModel.setId(restaurante.getId());
+		restauranteModel.setNome(restaurante.getNome());
+		restauranteModel.setTaxaFrete(restaurante.getTaxaFrete());
+		restauranteModel.setCozinha(cozinhaModel);
+		
+		return restauranteModel;
+		
+	}
 
 
 
