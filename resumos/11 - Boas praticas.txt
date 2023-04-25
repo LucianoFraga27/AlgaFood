@@ -1,0 +1,9 @@
+11.1. Analisando e definindo melhor o escopo das transações
+
+@Transactional -> abre uma transação quando o método é chamado. O método só executado se tiver uma transação. 
+
+Todos os métodos publicos que tem mudança no banco de dados é legal que tenha a notação
+@Transactional.
+
+Evitar problemas de inconsistencia no banco de dados.
+
